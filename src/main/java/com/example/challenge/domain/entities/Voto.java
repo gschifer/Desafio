@@ -1,22 +1,31 @@
 package com.example.challenge.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 @Data
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "votos")
 public class Voto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
-    private String voto;
+    @NotBlank
+    @Column(name = "descricao_voto")
+    private String descricaoVoto;
 
-    private Long pautaId;
+    @JsonIgnore
+    @ManyToOne
+    private Associado associado;
 
-    private Long associadoId;
+    @JsonIgnore
+    @ManyToOne
+    private Pauta pauta;
 }

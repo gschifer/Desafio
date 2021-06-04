@@ -1,0 +1,10 @@
+-- insert into pautas(id, titulo) values(1, 'pauta 1');
+-- insert into pautas(id, titulo) values(2, 'pauta 2');
+--
+--
+-- insert into associados(id, nome, CREATED_AT) values(1, 'Gabriel', NOW());
+-- insert into associados(id, nome, CREATED_AT) values(2, 'João', NOW());
+-- insert into associados(id, nome, CREATED_AT) values(3, 'José', NOW());
+--
+-- insert into votos(id, descricao_voto, associado_id, pauta_id) values(1, 'Sim', 1, 1);
+-- insert into votos(id, descricao_voto, associado_id, pauta_id) values(2, 'Não', 2, 1);

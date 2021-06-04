@@ -13,24 +13,7 @@ public class VotoService {
     @Autowired
     VotoRepository repository;
 
-
     public Voto saveVoto(Voto voto) {
        return repository.save(voto);
     }
-
-    public boolean validaVoto(Voto voto) {
-        Optional<Voto> validaVoto = repository.findByAssociadoId(voto.getAssociadoId());
-
-        if (validaVoto.isPresent()) {
-            return false;
-        }
-
-        if (voto.getVoto().equals("Sim") || voto.getVoto().equals("Não")) {
-            return true;
-        }
-
-        return false;
-    }
-
-
 }

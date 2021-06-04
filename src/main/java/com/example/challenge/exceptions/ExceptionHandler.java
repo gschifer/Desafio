@@ -12,10 +12,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +35,40 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ExceptionError("Esse ID não existe para ser removido.")
         );
+    }
+
+    //Tratamento de erro para busca de Listas vazias
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            EmptyListException.class
+    })
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public Message handleMessage(EmptyListException e) {
+        Message message = new Message();
+        message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        message.setError("Not found, empty list for the given object");
+        message.setStatus(404);
+        message.setException("com.example.challenge.exceptions.EmptyListException");
+        message.setMessage(e.getMessage());
+
+        return message;
+    }
+
+    //Tratamento de erro para busca de id's inexistentes
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            ObjectNotFoundException.class
+    })
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public Message handleMessage(ObjectNotFoundException e) {
+        Message message = new Message();
+        message.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        message.setError("Not found");
+        message.setStatus(404);
+        message.setException("com.example.challenge.exceptions.ObjectNotFoundException");
+        message.setMessage(e.getMessage());
+
+        return message;
     }
 
     @Override
@@ -60,7 +97,6 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                       WebRequest request) {
 
         return new ResponseEntity<>(new ExceptionError("Operação não permitida."), HttpStatus.METHOD_NOT_ALLOWED);
-
     }
 
     //Tratamento de erro para válores inválidos tratados pelo Javax Validation
@@ -93,7 +129,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         deleteException.setStatus(status.value());
         deleteException.setTitulo("Um ou mais campos estão com os dados incorretos.");
         deleteException.setCampos(campos);
+
         return handleExceptionInternal(ex, deleteException, headers, status, request);
     }
-
 }
