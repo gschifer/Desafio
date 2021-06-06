@@ -2,12 +2,10 @@ package com.example.challenge.controllers;
 
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
-import com.example.challenge.exceptions.ExceptionError;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import com.example.challenge.services.VotoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -59,13 +57,15 @@ public class AssociadoController {
                                @PathVariable Long associadoId,
                                @PathVariable Long pautaId) {
 
+        associadoService.validaAssociado(associadoId, pautaId);
+        pautaService.validaPauta(pautaId);
+
         Optional<Associado> associado = associadoService.getAssociado(associadoId);
         voto.setAssociado(associado.get());
         voto.setPauta(pautaService.getPauta(pautaId).get());
         Voto votoSalvo = votoService.saveVoto(voto);
 
         return votoSalvo;
-
     }
 
     @PostMapping("/verificaCpf")
@@ -77,7 +77,7 @@ public class AssociadoController {
     }
 
     @DeleteMapping("/{associadoId}")
-    public ResponseEntity deleteAssociado(@PathVariable Long associadoId) {
+    public ResponseEntity<Associado> deleteAssociado(@PathVariable Long associadoId) {
         associadoService.deleteAssociado(associadoId);
 
         return ResponseEntity.ok().build();

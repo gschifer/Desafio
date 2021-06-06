@@ -20,9 +20,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("api/v1/pautas")
 public class PautaController {
-    PautaService pautaService;
-    AssociadoService associadoService;
-    VotoService votoService;
+    private PautaService pautaService;
+    private AssociadoService associadoService;
+    private VotoService votoService;
 
     @Autowired
     public PautaController(PautaService pautaService, AssociadoService associadoService, VotoService votoService) {
@@ -38,11 +38,27 @@ public class PautaController {
         return ResponseEntity.ok(pautas);
     }
 
-    @GetMapping
-    public ResponseEntity<Optional<Pauta>> getPauta(@PathVariable Long id) {
-        Optional<Pauta> pauta = pautaService.getPauta(id);
+    @GetMapping("/{pautaId}")
+    public ResponseEntity<Optional<Pauta>> getPauta(@PathVariable Long pautaId) {
+        Optional<Pauta> pauta = pautaService.getPauta(pautaId);
 
         return ResponseEntity.ok(pauta);
+    }
+
+    @GetMapping("/empates")
+    public ResponseEntity<List<Pauta>> getPautasEmpatadas() {
+        List<Pauta> pautas = pautaService.getPautasEmpatadas();
+
+        return ResponseEntity.ok(pautas);
+    }
+
+    @PostMapping("/{pautaId}/reabrirPauta")
+    public ResponseEntity<Pauta> reabrePauta(@PathVariable Long pautaId) {
+       Pauta pauta = pautaService.reabrePauta(pautaId);
+
+        URI location = this.getUri(pautaId);
+
+        return ResponseEntity.created(location).body(pauta);
     }
 
     @PostMapping
@@ -54,43 +70,9 @@ public class PautaController {
         return ResponseEntity.created(location).body(pautaAux);
     }
 
-//    @PostMapping("/{pautaId}/associado/{associadoId}")
-//    public ResponseEntity salvaVotacao(@RequestBody Voto voto,
-//                                       @PathVariable Long pautaId,
-//                                       @PathVariable Long associadoId) {
-//
-//        boolean validaAssociado        = associadoService.validaAssociado(associadoId);
-//        boolean pauta                  = pautaService.validaPauta(pautaId);
-//
-//        if (validaAssociado && pauta) {
-//            Voto votoSalvo = this.saveVoto(associadoId, pautaId, voto);
-//            this.updateAssociado(associadoId, pautaId, votoSalvo);
-//            pautaService.validaPauta(pautaId);
-//            URI location = getUri(votoSalvo.getId());
-//
-//            return ResponseEntity.created(location).body(votoSalvo);
-//        }
-//
-//        return ResponseEntity.notFound().build();
-//    }
 
     private URI getUri(Long id) {
         return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(id).toUri();
     }
-
-//    private void updateAssociado(Long associadoId, Long pautaId, Voto votoSalvo ) {
-//        Optional<Associado> associado = associadoService.getAssociado(associadoId);
-//        associado.get().setPautaId(pautaId);
-//        associado.get().setVotoId(votoSalvo.getId());
-//        Associado assoc = associado.get();
-//        associadoService.updateAssociado(associadoId, assoc);
-//    }
-//
-//    private Voto saveVoto(Long associadoId, Long pautaId, Voto voto) {
-//        voto.setAssociadoId(associadoId);
-//        voto.setPautaId(pautaId);
-//
-//        return votoService.saveVoto(voto);
-//    }
 }

@@ -30,6 +30,9 @@ public class Associado {
     @Email
     private String email;
 
+    @Size(min = 11, max = 11)
+    private String cpf;
+
     @OneToMany(mappedBy = "associado")
     private List<Voto> votos;
 

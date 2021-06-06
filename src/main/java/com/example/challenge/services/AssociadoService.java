@@ -1,27 +1,25 @@
 package com.example.challenge.services;
 
 import com.example.challenge.domain.entities.Associado;
+import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.exceptions.EmptyListException;
-import com.example.challenge.exceptions.ExceptionError;
 import com.example.challenge.exceptions.ObjectNotFoundException;
+import com.example.challenge.exceptions.VotoInvalidoException;
 import com.example.challenge.repository.AssociadoRepository;
 import com.example.challenge.repository.VotoRepository;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import static org.junit.Assert.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AssociadoService {
-    AssociadoRepository associadoRepository;
-    VotoRepository votoRepository;
+    private AssociadoRepository associadoRepository;
+    private VotoRepository votoRepository;
 
     @Autowired
     public AssociadoService(AssociadoRepository associadoRepository, VotoRepository votoRepository) {
@@ -36,15 +34,12 @@ public class AssociadoService {
                 ("O associado de ID: " + associadoId +" não existe na base de dados.")));
     }
 
-    public boolean validaAssociado(Long associadoId) {
-        Optional<Associado> associado = this.getAssociado(associadoId);
+    public void validaAssociado(Long associadoId, Long pautaId) {
+        Optional<Voto> voto = votoRepository.findByAssociadoIdAndPautaId(associadoId, pautaId);
 
-            if (associado.isPresent()) {
-                return votoRepository.findByAssociadoId(associadoId).isEmpty();
-            }
-
-        return false;
+        if (voto.isPresent()) throw new VotoInvalidoException("Associado já votou nesta pauta.");
     }
+
 
     @Transactional
     public Associado saveAssociado(Associado associado) {
