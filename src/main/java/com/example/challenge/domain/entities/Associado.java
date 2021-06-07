@@ -33,7 +33,7 @@ public class Associado {
     @Size(min = 11, max = 11)
     private String cpf;
 
-    @OneToMany(mappedBy = "associado")
+    @OneToMany(mappedBy = "associado", cascade = CascadeType.ALL)
     private List<Voto> votos;
 
     @JsonFormat(pattern = "dd/MM/YYYY HH:mm:ss")

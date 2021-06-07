@@ -8,6 +8,7 @@ import com.example.challenge.services.VotoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,6 +42,7 @@ public class AssociadoController {
 
     @ApiOperation("Cadastra um novo associado.")
     @PostMapping
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid Associado associado) {
         Associado associadoAux = associadoService.saveAssociado(associado);
         URI location = getUri(associadoAux.getId());
@@ -58,6 +60,7 @@ public class AssociadoController {
 
     @ApiOperation("Cadastra o voto do associado para a pauta especificada.")
     @PostMapping("/{associadoId}/votar/{pautaId}")
+    @Secured({"ROLE_ADMIN"})
     public Voto votaEmUmaPauta(@RequestBody Voto voto,
                                @PathVariable Long associadoId,
                                @PathVariable Long pautaId) {
@@ -84,6 +87,7 @@ public class AssociadoController {
 
     @ApiOperation("Deleta um associado pelo ID informado.")
     @DeleteMapping("/{associadoId}")
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> deleteAssociado(@PathVariable Long associadoId) {
         associadoService.deleteAssociado(associadoId);
 
@@ -92,6 +96,7 @@ public class AssociadoController {
 
     @ApiOperation("Atualiza os dados do associado pelo ID informado.")
     @PutMapping("/{associadoId}")
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
                                                      @RequestBody Associado associado) {
 

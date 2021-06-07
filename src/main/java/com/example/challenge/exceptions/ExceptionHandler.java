@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -34,6 +35,17 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity errorNotFound() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ExceptionError("Esse ID não existe para ser removido.")
+        );
+    }
+
+    //Tratamento de erro para acesso negado à usuários
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            AccessDeniedException.class
+    })
+    @ResponseBody
+    public ResponseEntity deniedAccessException() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                new ExceptionError("Você não tem permissão para realizar essa operação.")
         );
     }
 
@@ -85,7 +97,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     })
     public ResponseEntity errorBadRequest() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ExceptionError("You cannot pass the value in the body")
+                new ExceptionError("Você passou algum argumento inválido para essa requisição.")
         );
     }
 

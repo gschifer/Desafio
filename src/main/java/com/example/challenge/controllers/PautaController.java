@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -47,6 +48,7 @@ public class PautaController {
 
     @ApiOperation("Deleta a pauta pelo ID informado.")
     @DeleteMapping("/{pautaId}")
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity deletePauta(@PathVariable Long pautaId) {
         pautaService.deletePauta(pautaId);
 
@@ -79,6 +81,7 @@ public class PautaController {
 
     @ApiOperation("Reabre uma pauta a partir do ID informado.")
     @PostMapping("/{pautaId}/reabrirPauta")
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Pauta> reabrePauta(@PathVariable Long pautaId) {
        Pauta pauta = pautaService.reabrePauta(pautaId);
 
@@ -89,6 +92,7 @@ public class PautaController {
 
     @ApiOperation("Cadastra uma nova pauta.")
     @PostMapping
+    @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Pauta> salvaPauta(@RequestBody Pauta pauta) {
         Pauta pautaAux = pautaService.savePauta(pauta);
 
