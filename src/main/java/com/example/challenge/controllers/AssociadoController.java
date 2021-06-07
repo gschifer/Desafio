@@ -5,6 +5,7 @@ import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import com.example.challenge.services.VotoService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ public class AssociadoController {
         this.pautaService = pautaService;
     }
 
+    @ApiOperation("Lista todos os associados cadastrados.")
     @GetMapping
     public ResponseEntity<List<Associado>> getAssociados() {
         List<Associado> associados = associadoService.getAssociados();
@@ -37,6 +39,7 @@ public class AssociadoController {
         return ResponseEntity.ok(associados);
     }
 
+    @ApiOperation("Cadastra um novo associado.")
     @PostMapping
     public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid Associado associado) {
         Associado associadoAux = associadoService.saveAssociado(associado);
@@ -45,6 +48,7 @@ public class AssociadoController {
         return ResponseEntity.created(location).body(associadoAux);
     }
 
+    @ApiOperation("Lista o associado desejado pelo ID informado.")
     @GetMapping("/{associadoId}")
     public ResponseEntity<Optional<Associado>> getAssociado(@PathVariable Long associadoId) {
         Optional<Associado> associado = associadoService.getAssociado(associadoId);
@@ -52,6 +56,7 @@ public class AssociadoController {
         return ResponseEntity.ok(associado);
     }
 
+    @ApiOperation("Cadastra o voto do associado para a pauta especificada.")
     @PostMapping("/{associadoId}/votar/{pautaId}")
     public Voto votaEmUmaPauta(@RequestBody Voto voto,
                                @PathVariable Long associadoId,
@@ -68,6 +73,7 @@ public class AssociadoController {
         return votoSalvo;
     }
 
+    @ApiOperation("Verifica se o CPF informado é válido.")
     @PostMapping("/verificaCpf")
     public ResponseEntity<Object> verificaCpf(@RequestBody String cpf) {
         RestTemplate restTemplate = new RestTemplate();
@@ -76,6 +82,7 @@ public class AssociadoController {
         return ResponseEntity.ok(response);
     }
 
+    @ApiOperation("Deleta um associado pelo ID informado.")
     @DeleteMapping("/{associadoId}")
     public ResponseEntity<Associado> deleteAssociado(@PathVariable Long associadoId) {
         associadoService.deleteAssociado(associadoId);
@@ -83,6 +90,7 @@ public class AssociadoController {
         return ResponseEntity.ok().build();
     }
 
+    @ApiOperation("Atualiza os dados do associado pelo ID informado.")
     @PutMapping("/{associadoId}")
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
                                                      @RequestBody Associado associado) {

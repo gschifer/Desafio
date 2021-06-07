@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,8 +56,6 @@ public class PautaService {
         }
 
         votos.stream().forEach(voto -> votoRepository.deleteById(voto.getId()));
-
-        pauta.get().setVotos(new ArrayList<>());
         pauta.get().setResultado(PautaEnum.INDEFINIDO.getDescricao());
         pauta.get().setStatus(PautaEnum.ABERTA.getDescricao());
 
@@ -122,5 +119,25 @@ public class PautaService {
        if (pautasEmpatadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta empatada no momento.");
 
        return pautasEmpatadas;
+    }
+
+    public List<Pauta> getPautasAprovadas() {
+        List<Pauta> pautasAprovadas = pautaRepository.findByResultado(PautaEnum.APROVADA.getDescricao());
+
+        if (pautasAprovadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta aprovada no momento.");
+
+        return pautasAprovadas;
+    }
+
+    public List<Pauta> getPautasReprovadas() {
+        List<Pauta> pautasReprovadas = pautaRepository.findByResultado(PautaEnum.REPROVADA.getDescricao());
+
+        if (pautasReprovadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta reprovada no momento.");
+
+        return pautasReprovadas;
+    }
+
+    public void deletePauta(Long pautaId) {
+        pautaRepository.deleteById(pautaId);
     }
 }

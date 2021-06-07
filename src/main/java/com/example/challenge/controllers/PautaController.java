@@ -1,12 +1,10 @@
 package com.example.challenge.controllers;
 
-import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
-import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import com.example.challenge.services.VotoService;
-import lombok.AllArgsConstructor;
+import io.swagger.annotations.ApiOperation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +29,7 @@ public class PautaController {
         this.votoService = votoService;
     }
 
+    @ApiOperation("Lista todas as pautas cadastradas.")
     @GetMapping
     public ResponseEntity<List<Pauta>> getPautas() {
         List<Pauta> pautas = pautaService.getPautas();
@@ -38,6 +37,7 @@ public class PautaController {
         return ResponseEntity.ok(pautas);
     }
 
+    @ApiOperation("Lista a pauta desejada pelo ID informado.")
     @GetMapping("/{pautaId}")
     public ResponseEntity<Optional<Pauta>> getPauta(@PathVariable Long pautaId) {
         Optional<Pauta> pauta = pautaService.getPauta(pautaId);
@@ -45,6 +45,15 @@ public class PautaController {
         return ResponseEntity.ok(pauta);
     }
 
+    @ApiOperation("Deleta a pauta pelo ID informado.")
+    @DeleteMapping("/{pautaId}")
+    public ResponseEntity deletePauta(@PathVariable Long pautaId) {
+        pautaService.deletePauta(pautaId);
+
+        return ResponseEntity.ok().body("Pauta excluída com sucesso.");
+    }
+
+    @ApiOperation("Lista todas as pautas que estão com o resultado: \"Empatada\".")
     @GetMapping("/empates")
     public ResponseEntity<List<Pauta>> getPautasEmpatadas() {
         List<Pauta> pautas = pautaService.getPautasEmpatadas();
@@ -52,6 +61,23 @@ public class PautaController {
         return ResponseEntity.ok(pautas);
     }
 
+    @ApiOperation("Lista todas as pautas que estão com o resultado: \"Aprovada\".")
+    @GetMapping("/aprovadas")
+    public ResponseEntity<List<Pauta>> getPautasAprovadas() {
+        List<Pauta> pautas = pautaService.getPautasAprovadas();
+
+        return ResponseEntity.ok(pautas);
+    }
+
+    @ApiOperation("Lista todas as pautas que estão com o resultado: \"Reprovada\".")
+    @GetMapping("/reprovadas")
+    public ResponseEntity<List<Pauta>> getPautasReprovadas() {
+        List<Pauta> pautas = pautaService.getPautasReprovadas();
+
+        return ResponseEntity.ok(pautas);
+    }
+
+    @ApiOperation("Reabre uma pauta a partir do ID informado.")
     @PostMapping("/{pautaId}/reabrirPauta")
     public ResponseEntity<Pauta> reabrePauta(@PathVariable Long pautaId) {
        Pauta pauta = pautaService.reabrePauta(pautaId);
@@ -61,6 +87,7 @@ public class PautaController {
         return ResponseEntity.created(location).body(pauta);
     }
 
+    @ApiOperation("Cadastra uma nova pauta.")
     @PostMapping
     public ResponseEntity<Pauta> salvaPauta(@RequestBody Pauta pauta) {
         Pauta pautaAux = pautaService.savePauta(pauta);

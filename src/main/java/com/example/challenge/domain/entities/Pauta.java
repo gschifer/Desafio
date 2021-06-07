@@ -26,7 +26,7 @@ public class Pauta {
     @NotBlank
     private String titulo;
 
-    @OneToMany(mappedBy = "pauta")
+    @OneToMany(mappedBy = "pauta", cascade = CascadeType.ALL)
     private List<Voto> votos;
 
     private String status = PautaEnum.ABERTA.getDescricao();
