@@ -28,7 +28,7 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 .contact(new Contact("Gabriel Schiferdecke", "https://www.linkedin.com/in/gabriel-schiferdecke-540307139/", "gabriel.schifer@hotmail.com"))
-                .title("Desafio Técnico Sicredi")
+                .title("Desafio Técnico Back-end")
                 .description("API REST")
                 .license("Apache Licence Version 2.0")
                 .licenseUrl("https://apache.org")
