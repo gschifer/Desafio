@@ -2,4 +2,4 @@
 Desafio Técnico Back-end para implementar uma API para votação de pautas entre os associados.
 
 ## Rotas da API
-<img src="./images/rotasAPI.png" alt="Métodos Http"/>
+![prigolo](https://github.com/gschifer/Desafio-Back-end-IBM/blob/master/src/main/java/com/example/challenge/images/rotasAPI.png)
