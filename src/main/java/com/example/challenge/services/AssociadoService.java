@@ -70,6 +70,7 @@ public class AssociadoService {
             Associado assoc = associado.get();
             assoc.setEmail(associadoRequest.getEmail());
             assoc.setNome(associadoRequest.getNome());
+            assoc.setCpf(associadoRequest.getCpf());
 
             return associadoRepository.save(assoc);
 
