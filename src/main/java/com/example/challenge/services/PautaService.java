@@ -65,7 +65,7 @@ public class PautaService {
 
 
     public void updateResultado(Long pautaId) {
-        if (this.verificaSePodeContinuar(pautaId)) return;
+        if (verificaSePodeContinuar(pautaId)) return;
 
         List<Voto> voto          = votoRepository.findByPautaId(pautaId);
         Optional<Pauta> pauta    = pautaRepository.findById(pautaId);

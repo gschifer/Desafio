@@ -8,20 +8,30 @@ import com.example.challenge.exceptions.PautaEncerradaException;
 import com.example.challenge.prototype.PautaPrototype;
 import com.example.challenge.repository.PautaRepository;
 import com.example.challenge.services.PautaService;
+import com.example.challenge.util.DatabaseCleaner;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import javax.sql.DataSource;
+
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+@TestPropertySource("/application-test.properties")
 public class PautaServiceIT {
     @Autowired
     private PautaService pautaService;
@@ -29,9 +39,25 @@ public class PautaServiceIT {
     @Autowired
     private PautaRepository pautaRepository;
 
-    @BeforeEach
-    public void unit() {
+    @Autowired
+    private DatabaseCleaner databaseCleaner;
 
+    @Autowired
+    private DataSource dataSource;
+
+    @BeforeEach
+    public void init() throws SQLException {
+        limpaBancoDeDados();
+        insereMassaDeDadosParaTeste();
+    }
+
+    public void insereMassaDeDadosParaTeste() throws SQLException {
+        Connection connection = dataSource.getConnection();
+        ScriptUtils.executeSqlScript(connection, new ClassPathResource("import.sql"));
+    }
+
+    public void limpaBancoDeDados() {
+        databaseCleaner.clearTables();
     }
 
     @Test
