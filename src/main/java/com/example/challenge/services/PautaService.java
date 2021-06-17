@@ -34,16 +34,17 @@ public class PautaService {
     public Optional<Pauta> getPauta(Long pautaId) {
         Optional<Pauta> pauta = pautaRepository.findById(pautaId);
 
-        if (pauta.isEmpty()) throw new ObjectNotFoundException("A pauta de ID: " + pautaId + " não existe na base de dados.");
+        if (pauta.isEmpty())
+            throw new ObjectNotFoundException("A pauta de ID: " + pautaId + " não existe na base de dados.");
 
         return pauta;
     }
 
     public void validaPauta(Long pautaId) {
-       Optional<Pauta> pautaExiste = this.getPauta(pautaId);
-       boolean pautaAberta         = pautaExiste.get().getStatus().equals(PautaEnum.ABERTA.getDescricao());
+        Optional<Pauta> pautaExiste = this.getPauta(pautaId);
+        boolean pautaEncerrada      = pautaExiste.get().getStatus().equals(PautaEnum.ENCERRADA.getDescricao());
 
-        if (!pautaAberta) throw new PautaEncerradaException("Pauta já encerrada, não são aceitos novos votos.");
+        if (pautaEncerrada) throw new PautaEncerradaException("Pauta já encerrada, não são aceitos novos votos.");
     }
 
 
@@ -65,10 +66,10 @@ public class PautaService {
 
 
     public void updateResultado(Long pautaId) {
-        if (verificaSePodeContinuar(pautaId)) return;
+        if (naoPodeProsseguir(pautaId)) return;
 
-        List<Voto> voto          = votoRepository.findByPautaId(pautaId);
-        Optional<Pauta> pauta    = pautaRepository.findById(pautaId);
+        List<Voto>      voto  = votoRepository.findByPautaId(pautaId);
+        Optional<Pauta> pauta = pautaRepository.findById(pautaId);
 
         long votosAfavor = voto
                 .stream()
@@ -78,23 +79,23 @@ public class PautaService {
                 .stream()
                 .filter(v -> v.getDescricaoVoto().equals(VotoEnum.NAO.getDescricao())).count();
 
-            if (votosAfavor == votosContra) {
-                pauta.get().setResultado(PautaEnum.EMPATE.getDescricao());
-            } else if (votosAfavor > votosContra) {
-                pauta.get().setResultado(PautaEnum.APROVADA.getDescricao());
-            } else {
-                pauta.get().setResultado(PautaEnum.REPROVADA.getDescricao());
-            }
+        if (votosAfavor == votosContra) {
+            pauta.get().setResultado(PautaEnum.EMPATE.getDescricao());
+        } else if (votosAfavor > votosContra) {
+            pauta.get().setResultado(PautaEnum.APROVADA.getDescricao());
+        } else {
+            pauta.get().setResultado(PautaEnum.REPROVADA.getDescricao());
+        }
 
-            pauta.get().setStatus(PautaEnum.ENCERRADA.getDescricao());
-            pautaRepository.save(pauta.get());
+        pauta.get().setStatus(PautaEnum.ENCERRADA.getDescricao());
+        pautaRepository.save(pauta.get());
     }
 
-    private boolean verificaSePodeContinuar(Long pautaId) {
-        long associadosContagem  = associadoService.getAssociados().stream().count();
-        long votosContagem       = votoRepository.findByPautaId(pautaId).stream().count();
+    private boolean naoPodeProsseguir(Long pautaId) {
+        long associadosContagem = associadoService.getAssociados().stream().count();
+        long votosContagem = votoRepository.findByPautaId(pautaId).stream().count();
 
-        return associadosContagem != votosContagem;
+        return associadosContagem > votosContagem;
     }
 
     @Transactional
@@ -114,11 +115,11 @@ public class PautaService {
     }
 
     public List<Pauta> getPautasEmpatadas() {
-       List<Pauta> pautasEmpatadas = pautaRepository.findByResultado(PautaEnum.EMPATE.getDescricao());
+        List<Pauta> pautasEmpatadas = pautaRepository.findByResultado(PautaEnum.EMPATE.getDescricao());
 
-       if (pautasEmpatadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta empatada no momento.");
+        if (pautasEmpatadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta empatada no momento.");
 
-       return pautasEmpatadas;
+        return pautasEmpatadas;
     }
 
     public List<Pauta> getPautasAprovadas() {

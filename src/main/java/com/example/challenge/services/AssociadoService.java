@@ -7,7 +7,9 @@ import com.example.challenge.exceptions.ObjectNotFoundException;
 import com.example.challenge.exceptions.VotoInvalidoException;
 import com.example.challenge.repository.AssociadoRepository;
 import com.example.challenge.repository.VotoRepository;
+
 import static org.junit.Assert.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +32,12 @@ public class AssociadoService {
     public Optional<Associado> getAssociado(Long associadoId) {
         Optional<Associado> associado = associadoRepository.findById(associadoId);
 
-        return Optional.ofNullable(associado.orElseThrow(() -> new ObjectNotFoundException
-                ("O associado de ID: " + associadoId +" não existe na base de dados.")));
+        if (associado.isEmpty()) {
+            throw new ObjectNotFoundException(
+                    String.format("O associado de ID: %d não existe na base de dados.", associadoId ));
+        }
+
+        return associado;
     }
 
     public void validaAssociado(Long associadoId, Long pautaId) {
@@ -50,9 +56,7 @@ public class AssociadoService {
     public List<Associado> getAssociados() {
         List<Associado> associados = associadoRepository.findAll();
 
-        if (associados.isEmpty()) {
-            throw new EmptyListException("Não há associados cadastrados no momento.");
-        }
+        if (associados.isEmpty()) throw new EmptyListException("Não há associados cadastrados no momento.");
 
         return associados;
     }
@@ -67,12 +71,12 @@ public class AssociadoService {
         Optional<Associado> associado = this.getAssociado(associadoId);
         assertNull(associadoRequest.getId());
 
-            Associado assoc = associado.get();
-            assoc.setEmail(associadoRequest.getEmail());
-            assoc.setNome(associadoRequest.getNome());
-            assoc.setCpf(associadoRequest.getCpf());
+        Associado assoc = associado.get();
+        assoc.setEmail(associadoRequest.getEmail());
+        assoc.setNome(associadoRequest.getNome());
+        assoc.setCpf(associadoRequest.getCpf());
 
-            return associadoRepository.save(assoc);
+        return associadoRepository.save(assoc);
 
     }
 }
