@@ -40,8 +40,8 @@ public class PautaController {
 
     @ApiOperation("Lista a pauta desejada pelo ID informado.")
     @GetMapping("/{pautaId}")
-    public ResponseEntity<Optional<Pauta>> getPauta(@PathVariable Long pautaId) {
-        Optional<Pauta> pauta = pautaService.getPauta(pautaId);
+    public ResponseEntity<Pauta> getPauta(@PathVariable Long pautaId) {
+        Pauta pauta = pautaService.getPauta(pautaId);
 
         return ResponseEntity.ok(pauta);
     }
@@ -83,12 +83,26 @@ public class PautaController {
     @PostMapping("/{pautaId}/reabrirPauta")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Pauta> reabrePauta(@PathVariable Long pautaId) {
-       Pauta pauta = pautaService.reabrePauta(pautaId);
+        Pauta pauta = pautaService.reabrePauta(pautaId);
 
         URI location = this.getUri(pautaId);
 
         return ResponseEntity.created(location).body(pauta);
     }
+
+    @ApiOperation("Coloca uma pauta em votação por um tempo específico determinado.")
+    @PostMapping("/{pautaId}/abrirVotacao")
+    @Secured({"ROLE_ADMIN"})
+    public void colocaPautaEmVotacao(@PathVariable Long pautaId,
+                                     @RequestParam(name = "tempo", required = false) Integer tempo) {
+
+        if (tempo == null) {
+            tempo = 1;
+        }
+
+        pautaService.colocaPautaEmVotacao(pautaId, tempo);
+    }
+
 
     @ApiOperation("Cadastra uma nova pauta.")
     @PostMapping

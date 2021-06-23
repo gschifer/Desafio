@@ -18,7 +18,6 @@ public class VotoService {
 
     public Voto saveVoto(Voto voto) {
         Voto votoSalvo = votoRepository.save(voto);
-        pautaService.updateResultado(voto.getPauta().getId());
 
         return votoSalvo;
     }

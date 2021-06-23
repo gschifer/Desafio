@@ -2,15 +2,18 @@ package com.example.challenge.services;
 
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
+import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
+import com.example.challenge.exceptions.associadoExceptions.DeleteAssociadoException;
 import com.example.challenge.exceptions.EmptyListException;
-import com.example.challenge.exceptions.ObjectNotFoundException;
 import com.example.challenge.exceptions.VotoInvalidoException;
 import com.example.challenge.repository.AssociadoRepository;
 import com.example.challenge.repository.VotoRepository;
 
 import static org.junit.Assert.*;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -29,13 +32,10 @@ public class AssociadoService {
         this.votoRepository = votoRepository;
     }
 
-    public Optional<Associado> getAssociado(Long associadoId) {
-        Optional<Associado> associado = associadoRepository.findById(associadoId);
+    public Associado getAssociado(Long associadoId) {
+        Associado associado = associadoRepository.findById(associadoId)
+                .orElseThrow(() -> new AssociadoNaoEncontradoException(associadoId));
 
-        if (associado.isEmpty()) {
-            throw new ObjectNotFoundException(
-                    String.format("O associado de ID: %d não existe na base de dados.", associadoId ));
-        }
 
         return associado;
     }
@@ -63,20 +63,21 @@ public class AssociadoService {
 
     @Transactional
     public void deleteAssociado(Long associadoId) {
-        associadoRepository.deleteById(associadoId);
+        try {
+            associadoRepository.deleteById(associadoId);
+        } catch (EmptyResultDataAccessException ex) {
+            throw new DeleteAssociadoException(associadoId);
+        }
     }
 
     @Transactional
     public Associado updateAssociado(Long associadoId, Associado associadoRequest) {
-        Optional<Associado> associado = this.getAssociado(associadoId);
+        Associado associado = this.getAssociado(associadoId);
         assertNull(associadoRequest.getId());
 
-        Associado assoc = associado.get();
-        assoc.setEmail(associadoRequest.getEmail());
-        assoc.setNome(associadoRequest.getNome());
-        assoc.setCpf(associadoRequest.getCpf());
+        BeanUtils.copyProperties(associadoRequest, associado, "id", "votos");
 
-        return associadoRepository.save(assoc);
+        return associadoRepository.save(associado);
 
     }
 }

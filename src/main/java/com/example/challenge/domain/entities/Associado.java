@@ -3,6 +3,7 @@ package com.example.challenge.domain.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -40,7 +41,7 @@ public class Associado implements Serializable {
     private List<Voto> votos;
 
     @JsonFormat(pattern = "dd/MM/YYYY HH:mm:ss")
-    @UpdateTimestamp
+    @CreationTimestamp
     @Column(name = "CREATED_AT")
     private LocalDateTime createdAt;
 

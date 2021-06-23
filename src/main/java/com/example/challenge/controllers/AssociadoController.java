@@ -16,7 +16,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/associados")
@@ -52,8 +51,8 @@ public class AssociadoController {
 
     @ApiOperation("Lista o associado desejado pelo ID informado.")
     @GetMapping("/{associadoId}")
-    public ResponseEntity<Optional<Associado>> getAssociado(@PathVariable Long associadoId) {
-        Optional<Associado> associado = associadoService.getAssociado(associadoId);
+    public ResponseEntity<Associado> getAssociado(@PathVariable Long associadoId) {
+        Associado associado = associadoService.getAssociado(associadoId);
 
         return ResponseEntity.ok(associado);
     }
@@ -68,9 +67,9 @@ public class AssociadoController {
         associadoService.validaAssociado(associadoId, pautaId);
         pautaService.validaPauta(pautaId);
 
-        Optional<Associado> associado = associadoService.getAssociado(associadoId);
-        voto.setAssociado(associado.get());
-        voto.setPauta(pautaService.getPauta(pautaId).get());
+        Associado associado = associadoService.getAssociado(associadoId);
+        voto.setAssociado(associado);
+        voto.setPauta(pautaService.getPauta(pautaId));
         Voto votoSalvo = votoService.saveVoto(voto);
 
         return votoSalvo;

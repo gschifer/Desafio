@@ -1,5 +1,5 @@
-insert into pautas(id, titulo, status, resultado, CREATED_AT) values(1, 'pauta 1', 'Aberta', 'Indefinida', NOW());
-insert into pautas(id, titulo, status, resultado, CREATED_AT) values(2, 'pauta 2', 'Aberta', 'Indefinida', NOW());
+insert into pautas(id, titulo, status, resultado, CREATED_AT) values(1, 'pauta 1', 'Aberta', 'Indefinido', NOW());
+insert into pautas(id, titulo, status, resultado, CREATED_AT) values(2, 'pauta 2', 'Aberta', 'Indefinido', NOW());
 
 
 insert into associados(id, nome, email, cpf, CREATED_AT) values(1, 'Gabriel', 'gabriel@hotmail.com', '03608898025', NOW());
