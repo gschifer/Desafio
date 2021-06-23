@@ -46,7 +46,7 @@ ou outras rotas conforme documentação do swagger fornecida abaixo
 ```
 
 ## Rotas da API
-![](https://github.com/gschifer/Desafio-Back-end-IBM/blob/master/src/main/java/com/example/challenge/images/rotasAPI.png)
+![](https://github.com/gschifer/Desafio-Back-end-IBM/blob/master/src/main/java/com/example/challenge/images/RotasAPI.png)
 
 
 
