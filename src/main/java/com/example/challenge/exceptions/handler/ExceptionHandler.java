@@ -1,24 +1,21 @@
-package com.example.challenge.exceptions;
+package com.example.challenge.exceptions.handler;
 
+import com.example.challenge.exceptions.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @AllArgsConstructor
@@ -39,8 +36,47 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                     .detail(ex.getMessage())
                     .timeStamp(LocalDateTime.now()).build();
         }
-
         return super.handleExceptionInternal(ex, body, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request) {
+
+        Throwable rootCause = ExceptionUtils.getRootCause(ex);
+
+        if (rootCause instanceof InvalidFormatException) {
+            return handleInvalidFormatException((InvalidFormatException) rootCause, headers, status, request);
+        }
+
+        return handleExceptionInternal(ex, null, headers, status, request);
+    }
+
+    public ResponseEntity<Object> handleInvalidFormatException(InvalidFormatException ex,
+                                                          HttpHeaders headers,
+                                                          HttpStatus status,
+                                                          WebRequest request) {
+
+        String propriedade = ex.getPath()
+                                .stream()
+                                .map(e -> e.getFieldName())
+                                .collect(Collectors.joining("."));
+
+        Object valor        = ex.getValue();
+        String tipoInvalido = ex.getValue().getClass().getSimpleName();
+        String tipoValido   = ex.getTargetType().getSimpleName();
+
+        String detail = String.format("Você digitou o valor: '%s', que é de um tipo inválido" +
+                        " '%s', para a propriedade '%s', ajuste o valor da propriedade para o tipo '%s'.",
+                valor, tipoInvalido, propriedade, tipoValido);
+
+        Problem problem = createProblemBuilder(
+                            status,
+                            ProblemType.MENSAGEM_INCOMPREENSIVEL, detail, LocalDateTime.now()).build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
     //Tratamento de erro para deletes com ID's inexistentes
@@ -59,26 +95,15 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
-    //Tratamento de erro para acesso negado à usuários
-    @org.springframework.web.bind.annotation.ExceptionHandler({
-            AccessDeniedException.class
-    })
-    @ResponseBody
-    public ResponseEntity deniedAccessException() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
-                new ExceptionError("Você não tem permissão para realizar essa operação.")
-        );
-    }
-
     //Tratamento de erro para busca de Listas vazias
     @org.springframework.web.bind.annotation.ExceptionHandler({
             EmptyListException.class
     })
     public ResponseEntity<?> handleMessage(EmptyListException ex, WebRequest request) {
 
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ProblemType type = ProblemType.LISTA_VAZIA;
-        String detail = ex.getMessage();
+        HttpStatus status  = HttpStatus.NOT_FOUND;
+        ProblemType type   = ProblemType.LISTA_VAZIA;
+        String detail      = ex.getMessage();
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
@@ -93,22 +118,14 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex,
                                                          WebRequest request) {
 
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ProblemType type  = ProblemType.ENTIDADE_NAO_ENCONTRADA;
-        String detail     = ex.getMessage();
+        HttpStatus status  = HttpStatus.NOT_FOUND;
+        ProblemType type   = ProblemType.ENTIDADE_NAO_ENCONTRADA;
+        String detail      = ex.getMessage();
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
-    }
-
-    @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-                                                                  HttpHeaders headers,
-                                                                  HttpStatus status,
-                                                                  WebRequest request) {
-        return super.handleHttpMessageNotReadable(ex, headers, status, request);
     }
 
     //Tratamento de erro para campos não necessários no body, como um ID num POST
@@ -128,7 +145,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                       HttpStatus status,
                                                                       WebRequest request) {
 
-        return new ResponseEntity<>(new ExceptionError("Operação não permitida."), HttpStatus.METHOD_NOT_ALLOWED);
+        ProblemType type   = ProblemType.METODO_NAO_SUPORTADO;
+        String detail      = "Você está tentando acessar um método que não está desenvolvido em nosso sistema.";
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
 
@@ -137,6 +160,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                         ProblemType type,
                                                         String detail,
                                                         LocalDateTime time) {
+
         Problem.ProblemBuilder problem = Problem.builder()
                 .status(status.value())
                 .type(type.getUri())

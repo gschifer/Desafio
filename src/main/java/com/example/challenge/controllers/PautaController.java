@@ -55,7 +55,7 @@ public class PautaController {
         return ResponseEntity.ok().body("Pauta excluída com sucesso.");
     }
 
-    @ApiOperation("Lista todas as pautas que estão com o resultado: \"Empatada\".")
+    @ApiOperation("Lista todas as pautas que estão com o resultado: 'Empatada'.")
     @GetMapping("/empates")
     public ResponseEntity<List<Pauta>> getPautasEmpatadas() {
         List<Pauta> pautas = pautaService.getPautasEmpatadas();
@@ -63,7 +63,7 @@ public class PautaController {
         return ResponseEntity.ok(pautas);
     }
 
-    @ApiOperation("Lista todas as pautas que estão com o resultado: \"Aprovada\".")
+    @ApiOperation("Lista todas as pautas que estão com o resultado: 'Aprovada'.")
     @GetMapping("/aprovadas")
     public ResponseEntity<List<Pauta>> getPautasAprovadas() {
         List<Pauta> pautas = pautaService.getPautasAprovadas();
@@ -71,7 +71,7 @@ public class PautaController {
         return ResponseEntity.ok(pautas);
     }
 
-    @ApiOperation("Lista todas as pautas que estão com o resultado: \"Reprovada\".")
+    @ApiOperation("Lista todas as pautas que estão com o resultado: 'Reprovada'.")
     @GetMapping("/reprovadas")
     public ResponseEntity<List<Pauta>> getPautasReprovadas() {
         List<Pauta> pautas = pautaService.getPautasReprovadas();
@@ -90,15 +90,14 @@ public class PautaController {
         return ResponseEntity.created(location).body(pauta);
     }
 
-    @ApiOperation("Coloca uma pauta em votação por um tempo específico determinado.")
+    @ApiOperation("Coloca uma pauta em votação por um tempo específico determinado. Obs: Por padrão está como 1 min " +
+                     "caso não houver um tempo específico determinado por parâmetro.")
     @PostMapping("/{pautaId}/abrirVotacao")
     @Secured({"ROLE_ADMIN"})
     public void colocaPautaEmVotacao(@PathVariable Long pautaId,
                                      @RequestParam(name = "tempo", required = false) Integer tempo) {
 
-        if (tempo == null) {
-            tempo = 1;
-        }
+        if (tempo == null) tempo = 1;
 
         pautaService.colocaPautaEmVotacao(pautaId, tempo);
     }
