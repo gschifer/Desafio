@@ -97,8 +97,6 @@ public class PautaController {
     public void colocaPautaEmVotacao(@PathVariable Long pautaId,
                                      @RequestParam(name = "tempo", required = false) Integer tempo) {
 
-        if (tempo == null) tempo = 1;
-
         pautaService.colocaPautaEmVotacao(pautaId, tempo);
     }
 

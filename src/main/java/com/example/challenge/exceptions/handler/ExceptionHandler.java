@@ -1,7 +1,10 @@
 package com.example.challenge.exceptions.handler;
 
 import com.example.challenge.exceptions.*;
+import com.example.challenge.exceptions.pautaExceptions.PautaInvalidaException;
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.MessageSource;
@@ -9,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
@@ -51,7 +55,67 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
             return handleInvalidFormatException((InvalidFormatException) rootCause, headers, status, request);
         }
 
+        else if (rootCause instanceof UnrecognizedPropertyException) {
+            return handleUnrecognizedPropertyException((UnrecognizedPropertyException) rootCause,
+                                                        headers, status, request);
+        }
+
+        else if (rootCause instanceof JsonParseException) {
+            return handleJsonParseException((JsonParseException) rootCause, headers, status, request);
+        }
+
         return handleExceptionInternal(ex, null, headers, status, request);
+    }
+
+    private ResponseEntity<Object> handleJsonParseException(JsonParseException ex,
+                                                            HttpHeaders headers,
+                                                            HttpStatus status,
+                                                            WebRequest request) {
+
+        ProblemType type   = ProblemType.CARACTER_INCORRETO;
+        String detail      = "Verifique o caracter incorreto no corpo de requisição.";
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem  = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            PautaInvalidaException.class
+    })
+    public ResponseEntity<?> handlePautaInvalidaException(PautaInvalidaException ex,
+                                                          WebRequest request) {
+
+        HttpStatus status  = HttpStatus.BAD_REQUEST;
+        ProblemType type   = ProblemType.PAUTA_INVALIDA;
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({UnrecognizedPropertyException.class})
+    private ResponseEntity<Object> handleUnrecognizedPropertyException(UnrecognizedPropertyException ex,
+                                                                       HttpHeaders headers,
+                                                                       HttpStatus status,
+                                                                       WebRequest request) {
+
+        String propriedadesValidas = ex.getKnownPropertyIds().stream().filter(e -> e != "id")
+                                        .collect(Collectors.toList()).toString();
+        LocalDateTime time          = LocalDateTime.now();
+        String propriedadeInvalida  = ex.getPropertyName();
+
+        String detail = String.format("A propriedade '%s' fornecida não existe, você só pode utilizar a(s) seguinte(s) " +
+                "propriedade(s) no corpo de requisição: '%s'.", propriedadeInvalida, propriedadesValidas);
+
+         Problem problem = createProblemBuilder(status,
+                                                ProblemType.PROPRIEDADE_NAO_RECONHECIDA,
+                                                detail,
+                                                time).build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
     public ResponseEntity<Object> handleInvalidFormatException(InvalidFormatException ex,
@@ -124,6 +188,22 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    //Tratamento para acesso não autorizado à usuarios
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            AccessDeniedException.class
+    })
+    public ResponseEntity<Object> handlingAcessDenied(AccessDeniedException ex,
+                                                 WebRequest request) {
+
+        HttpStatus status  = HttpStatus.FORBIDDEN;
+        String detail      = "Você não tem permissão de acesso nessa funcionalidade da aplicação.";
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, ProblemType.ACESSO_NEGADO, detail, time).build();
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }

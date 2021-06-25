@@ -151,7 +151,9 @@ public class PautaService {
         }
     }
 
-    public void colocaPautaEmVotacao(Long pautaId, int tempo) {
+    public void colocaPautaEmVotacao(Long pautaId, Integer tempo) {
+        if (tempo == null) tempo = 1;
+
         Pauta pauta = getPauta(pautaId);
 
         verificaSePodeIrEmVotacao(pauta);

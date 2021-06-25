@@ -1,7 +1,5 @@
 package com.example.challenge.exceptions.pautaExceptions;
 
-import com.example.challenge.domain.entities.Pauta;
-import com.example.challenge.enums.PautaEnum;
 import com.example.challenge.exceptions.NegocioException;
 
 public class PautaInvalidaException extends NegocioException {
@@ -13,7 +11,7 @@ public class PautaInvalidaException extends NegocioException {
     }
 
     public PautaInvalidaException() {
-        this("A pauta não está aceitando votos, pois ainda não está em votação.");
+        this("A pauta não está aceitando votos, pois ainda não está com o status de: 'Em votação'.");
     }
 
 }

@@ -8,7 +8,10 @@ public enum ProblemType {
     LISTA_VAZIA("/lista-vazia", "Lista vazia, não há conteúdo para ser exibido."),
     MENSAGEM_INCOMPREENSIVEL("/mensagem-incompreensivel", "Mensagem incompreensível, verifique sintaxe."),
     METODO_NAO_SUPORTADO("/metodo-nao-suportado", "Método não suportado."),
-    ACESSO_NEGADO("/acesso-negado", "Acesso negado.");
+    ACESSO_NEGADO("/acesso-negado", "Acesso negado."),
+    PROPRIEDADE_NAO_RECONHECIDA("/propriedade-nao-reconhecida", "Propriedade não reconhecida."),
+    CARACTER_INCORRETO("/caracter-incorreto", "Caracter incorreto"),
+    PAUTA_INVALIDA("/pauta-invalida", "Pauta inválida.");
 
     private String uri;
     private String title;
