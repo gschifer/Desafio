@@ -10,8 +10,10 @@ public enum ProblemType {
     METODO_NAO_SUPORTADO("/metodo-nao-suportado", "Método não suportado."),
     ACESSO_NEGADO("/acesso-negado", "Acesso negado."),
     PROPRIEDADE_NAO_RECONHECIDA("/propriedade-nao-reconhecida", "Propriedade não reconhecida."),
-    CARACTER_INCORRETO("/caracter-incorreto", "Caracter incorreto"),
-    PAUTA_INVALIDA("/pauta-invalida", "Pauta inválida.");
+    CARACTER_INVALIDO("/caracter-invalido", "Caracter inválido"),
+    PAUTA_INVALIDA("/pauta-invalida", "Pauta inválida."),
+    PARAMETRO_INVALIDO("/parametro-invalido", "Parâmetro inválido."),
+    RECURSO_NAO_ENCONTRADO("/recurso-nao-encontrado", "Recurso não encontrado.");
 
     private String uri;
     private String title;

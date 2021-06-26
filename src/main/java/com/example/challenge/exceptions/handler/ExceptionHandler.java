@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
@@ -40,7 +43,25 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                     .detail(ex.getMessage())
                     .timeStamp(LocalDateTime.now()).build();
         }
+
         return super.handleExceptionInternal(ex, body, headers, status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex,
+                                                                   HttpHeaders headers,
+                                                                   HttpStatus status,
+                                                                   WebRequest request) {
+
+        ProblemType type    = ProblemType.RECURSO_NAO_ENCONTRADO;
+        LocalDateTime time  = LocalDateTime.now();
+        String url          = ex.getRequestURL();
+        String detail       = String.format("O recurso '%s' que você tentou acessar, não existe.", url);
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
     @Override
@@ -72,8 +93,8 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                             HttpStatus status,
                                                             WebRequest request) {
 
-        ProblemType type   = ProblemType.CARACTER_INCORRETO;
-        String detail      = "Verifique o caracter incorreto no corpo de requisição.";
+        ProblemType type   = ProblemType.CARACTER_INVALIDO;
+        String detail      = "Verifique o caracter INVALIDO no corpo de requisição.";
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem  = createProblemBuilder(status, type, detail, time).build();
@@ -208,14 +229,41 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
-    //Tratamento de erro para campos não necessários no body, como um ID num POST
-    @org.springframework.web.bind.annotation.ExceptionHandler({
-            IllegalArgumentException.class
-    })
-    public ResponseEntity errorBadRequest() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                new ExceptionError("Você passou algum argumento inválido para essa requisição.")
-        );
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
+                                                        HttpHeaders headers,
+                                                        HttpStatus status,
+                                                        WebRequest request) {
+
+        if (ex instanceof MethodArgumentTypeMismatchException) {
+            return handleMethodArgumentTypeMismatchException((MethodArgumentTypeMismatchException) ex,
+                                                                status, headers, request);
+        }
+
+        return super.handleTypeMismatch(ex, headers, status, request);
+    }
+
+    //Tratamento de erro para tipos de parametros erraos na URI como um get http://localhost:8081/api/v1/associados/h
+    private ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex,
+                                                                 HttpStatus status,
+                                                                 HttpHeaders headers,
+                                                                 WebRequest request) {
+
+        ProblemType type              = ProblemType.PARAMETRO_INVALIDO;
+        String parametroInvalido      = ex.getValue().toString();
+        String tipoParametroInvalido  = ex.getValue().getClass().getSimpleName();
+        String parametroCorreto       = ex.getName();
+        String tipoParametroCorreto   = ex.getRequiredType().getSimpleName();
+
+        String   detail  = String.format("O parâmetro de URL '%s' recebeu o valor '%s' que é de um tipo '%s' inválido." +
+                                            " Corrija colocando um valor compatível com o tipo '%s'.",
+                                            parametroCorreto, parametroInvalido,
+                                            tipoParametroInvalido, tipoParametroCorreto);
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
     //Tratamento de erro para métodos HTTP inválidos como um POST nesse endereco http://localhost:8081/api/v1/associados/10
@@ -233,6 +281,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
+
 
 
 
