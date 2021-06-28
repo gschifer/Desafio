@@ -13,7 +13,10 @@ public enum ProblemType {
     CARACTER_INVALIDO("/caracter-invalido", "Caracter inválido"),
     PAUTA_INVALIDA("/pauta-invalida", "Pauta inválida."),
     PARAMETRO_INVALIDO("/parametro-invalido", "Parâmetro inválido."),
-    RECURSO_NAO_ENCONTRADO("/recurso-nao-encontrado", "Recurso não encontrado.");
+    RECURSO_NAO_ENCONTRADO("/recurso-nao-encontrado", "Recurso não encontrado."),
+    ERRO_DE_SISTEMA("/erro-de-sistema", "Erro de sistema."),
+    DADOS_INVALIDOS("/dados-invalidos", "Dados inválidos."),
+    ATRIBUTO_INVALIDO("/atributo-invalido", "Atributo inválido.");
 
     private String uri;
     private String title;

@@ -1,8 +1,8 @@
 package com.example.challenge.exceptions.associadoExceptions;
 
-import com.example.challenge.exceptions.DeleteException;
+import com.example.challenge.exceptions.NegocioException;
 
-public class DeleteAssociadoException extends DeleteException {
+public class DeleteAssociadoException extends NegocioException {
 
     private static final long serialVersionUID = 1L;
 

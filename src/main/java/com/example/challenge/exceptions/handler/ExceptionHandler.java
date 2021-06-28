@@ -14,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -22,13 +24,15 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
 @AllArgsConstructor
 public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private MessageSource messageSource;
+    public static final String MSG_ERRO_USUARIO = "Ocorreu um erro interno inesperado no sistema. Tente novamente, " +
+                                         "se o problema persistir, entre em contato com o administrador do sistema.";
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
@@ -58,7 +62,8 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         String url          = ex.getRequestURL();
         String detail       = String.format("O recurso '%s' que você tentou acessar, não existe.", url);
 
-        Problem problem = createProblemBuilder(status, type, detail, time).build();
+        Problem problem = createProblemBuilder(status, type, detail, time).
+                            mensagemUsuario(MSG_ERRO_USUARIO).build();
 
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -88,13 +93,14 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, null, headers, status, request);
     }
 
+    //Tratamento de erro para corpos de requisição com pontuações erradas.
     private ResponseEntity<Object> handleJsonParseException(JsonParseException ex,
                                                             HttpHeaders headers,
                                                             HttpStatus status,
                                                             WebRequest request) {
 
         ProblemType type   = ProblemType.CARACTER_INVALIDO;
-        String detail      = "Verifique o caracter INVALIDO no corpo de requisição.";
+        String detail      = "Verifique o caracter inválido no corpo de requisição.";
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem  = createProblemBuilder(status, type, detail, time).build();
@@ -134,7 +140,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
          Problem problem = createProblemBuilder(status,
                                                 ProblemType.PROPRIEDADE_NAO_RECONHECIDA,
                                                 detail,
-                                                time).build();
+                                                time)
+                                                .mensagemUsuario(MSG_ERRO_USUARIO)
+                                                .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -159,25 +167,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
         Problem problem = createProblemBuilder(
                             status,
-                            ProblemType.MENSAGEM_INCOMPREENSIVEL, detail, LocalDateTime.now()).build();
+                            ProblemType.MENSAGEM_INCOMPREENSIVEL,
+                            detail,
+                            LocalDateTime.now())
+                            .mensagemUsuario(MSG_ERRO_USUARIO)
+                            .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
-    }
-
-    //Tratamento de erro para deletes com ID's inexistentes
-    @org.springframework.web.bind.annotation.ExceptionHandler({
-            DeleteException.class
-    })
-    public ResponseEntity handleDeleteException(DeleteException ex, WebRequest request) {
-
-        HttpStatus status = HttpStatus.NOT_FOUND;
-        ProblemType type = ProblemType.ENTIDADE_NAO_ENCONTRADA;
-        String detail = ex.getMessage();
-        LocalDateTime time = LocalDateTime.now();
-
-        Problem problem = createProblemBuilder(status, type, detail, time).build();
-
-        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
     //Tratamento de erro para busca de Listas vazias
@@ -261,7 +257,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                             tipoParametroInvalido, tipoParametroCorreto);
         LocalDateTime time = LocalDateTime.now();
 
-        Problem problem = createProblemBuilder(status, type, detail, time).build();
+        Problem problem = createProblemBuilder(status, type, detail, time)
+                                            .mensagemUsuario(MSG_ERRO_USUARIO)
+                                            .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -282,8 +280,62 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            Exception.class
+    })
+    public ResponseEntity<?> handleUncaughtExceptions(Exception ex,
+                                                     WebRequest request) {
+
+        HttpStatus status  = HttpStatus.INTERNAL_SERVER_ERROR;
+        ProblemType type   = ProblemType.ERRO_DE_SISTEMA;
+        LocalDateTime time = LocalDateTime.now();
+        String detail      = MSG_ERRO_USUARIO;
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            AtributoInvalidoException.class
+    })
+    public ResponseEntity<?> handleAtributoInvalidoException(AtributoInvalidoException ex,
+                                                             WebRequest request) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemType type = ProblemType.ATRIBUTO_INVALIDO;
+        LocalDateTime time = LocalDateTime.now();
+        String detail = ex.getMessage();
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+                                                                  HttpHeaders headers,
+                                                                  HttpStatus status,
+                                                                  WebRequest request) {
+
+        List<FieldError> erros = ex.getBindingResult().getFieldErrors();
+        List<Field> fields = erros.stream()
+                .map(fieldError -> Field.builder()
+                        .name(fieldError.getField())
+                        .message(fieldError.getDefaultMessage()).build())
+                .collect(Collectors.toList());
+
+        ProblemType type   = ProblemType.DADOS_INVALIDOS;
+        String detail      = "Um ou mais campos estão com dados inválidos. Tente novamente.";
+        LocalDateTime time = LocalDateTime.now();
 
 
+        Problem problem = createProblemBuilder(status, type, detail, time)
+                .campos(fields).build();
+
+        return handleExceptionInternal(ex, problem, headers, status, request);
+    }
 
     private Problem.ProblemBuilder createProblemBuilder(HttpStatus status,
                                                         ProblemType type,

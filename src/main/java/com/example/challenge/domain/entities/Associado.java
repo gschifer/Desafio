@@ -28,10 +28,12 @@ public class Associado implements Serializable {
     private Long id;
 
     @NotBlank
-    @Size(max = 60)
+    @Column(nullable = false)
     private String nome;
 
+    @NotBlank
     @Email
+    @Column(nullable = false)
     private String email;
 
     @Size(min = 11, max = 11)

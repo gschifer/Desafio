@@ -5,9 +5,9 @@ import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.enums.PautaEnum;
 import com.example.challenge.enums.VotoEnum;
+import com.example.challenge.exceptions.AtributoInvalidoException;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.pautaExceptions.*;
-import com.example.challenge.exceptions.ReaberturaInvalidaException;
 import com.example.challenge.repository.PautaRepository;
 import com.example.challenge.repository.VotoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,9 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.junit.jupiter.api.Assertions;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 import java.util.List;
 
@@ -52,7 +55,7 @@ public class PautaService {
         List<Voto> votos = votoRepository.findByPautaId(pautaId);
 
         if (!pauta.getResultado().equals(PautaEnum.EMPATE.getDescricao())) {
-            throw new ReaberturaInvalidaException();
+            throw new ReaberturaInvalidaException("Você não pode reabrir uma pauta que não está empatada.");
         }
 
         votos.stream().forEach(voto -> votoRepository.deleteById(voto.getId()));
@@ -105,7 +108,14 @@ public class PautaService {
 
     @Transactional
     public Pauta savePauta(Pauta pauta) {
-        Assert.isNull(pauta.getId());
+        try {
+             Assert.isNull(pauta.getId(), "Você não pode passar o atributo 'ID' para a pauta. Considere removê-lo.");
+             Assert.isNull(pauta.getVotos(), "Você não pode passar o atributo 'votos' para a pauta. Considere removê-lo.");
+             Assert.isNull(pauta.getStatus(), "Você não pode passar o atributo 'status' para a pauta. Considere removê-lo.");
+             Assert.isNull(pauta.getResultado(), "Você não pode passar o atributo 'resultado' para a pauta. Considere removê-lo.");
+        } catch (IllegalArgumentException ex) {
+            throw new AtributoInvalidoException(ex.getMessage());
+        }
         return pautaRepository.save(pauta);
     }
 
@@ -147,7 +157,7 @@ public class PautaService {
         try {
             pautaRepository.deleteById(pautaId);
         } catch (EmptyResultDataAccessException ex) {
-            throw new DeletePautaException(pautaId);
+            throw new PautaNaoEncontradaException(pautaId);
         }
     }
 
@@ -155,8 +165,8 @@ public class PautaService {
         if (tempo == null) tempo = 1;
 
         Pauta pauta = getPauta(pautaId);
-
         verificaSePodeIrEmVotacao(pauta);
+
         pauta.setStatus(PautaEnum.EM_VOTACAO.getDescricao());
         pautaRepository.save(pauta);
 

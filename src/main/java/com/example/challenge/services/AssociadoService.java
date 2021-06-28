@@ -2,8 +2,8 @@ package com.example.challenge.services;
 
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
+import com.example.challenge.exceptions.AtributoInvalidoException;
 import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
-import com.example.challenge.exceptions.associadoExceptions.DeleteAssociadoException;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.VotoInvalidoException;
 import com.example.challenge.repository.AssociadoRepository;
@@ -11,6 +11,7 @@ import com.example.challenge.repository.VotoRepository;
 
 import static org.junit.Assert.*;
 
+import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -49,7 +50,15 @@ public class AssociadoService {
 
     @Transactional
     public Associado saveAssociado(Associado associado) {
-        Assert.isNull(associado.getId());
+        try {
+            Assert.isNull(associado.getId(), "Você não pode passar o atributo 'ID' para a pauta. Considere removê-lo.");
+            Assert.isNull(associado.getVotos(), "Você não pode passar o atributo 'votos' para a pauta. Considere removê-lo.");
+            Assert.isNull(associado.getCreatedAt(), "Você não pode passar o atributo 'createdAt' para a pauta. Considere removê-lo.");
+            Assert.isNull(associado.getUpdatedAt(), "Você não pode passar o atributo 'updatedAt' para a pauta. Considere removê-lo.");
+        } catch (IllegalArgumentException ex) {
+            throw new AtributoInvalidoException(ex.getMessage());
+        }
+
         return associadoRepository.save(associado);
     }
 
@@ -66,7 +75,7 @@ public class AssociadoService {
         try {
             associadoRepository.deleteById(associadoId);
         } catch (EmptyResultDataAccessException ex) {
-            throw new DeleteAssociadoException(associadoId);
+            throw new AssociadoNaoEncontradoException(associadoId);
         }
     }
 

@@ -1,8 +1,8 @@
 package com.example.challenge.exceptions.pautaExceptions;
 
-import com.example.challenge.exceptions.DeleteException;
+import com.example.challenge.exceptions.NegocioException;
 
-public class DeletePautaException extends DeleteException {
+public class DeletePautaException extends NegocioException {
     private static final long serialVersionUID = 1L;
 
     public DeletePautaException(String message) {

@@ -22,7 +22,7 @@ public class Voto implements Serializable {
     private Long id;
 
     @NotBlank
-    @Column(name = "descricao_voto")
+    @Column(name = "descricao_voto", nullable = false)
     private String descricaoVoto;
 
     @JsonIgnore

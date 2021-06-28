@@ -4,9 +4,7 @@ import com.example.challenge.enums.PautaEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -28,6 +26,7 @@ public class Pauta implements Serializable {
     private Long id;
 
     @NotBlank
+    @Column(nullable = false)
     private String titulo;
 
     @OneToMany(mappedBy = "pauta", cascade = CascadeType.ALL)
