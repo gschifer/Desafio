@@ -2,6 +2,7 @@ package com.example.challenge.controllers;
 
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
+import com.example.challenge.domain.request.AssociadoRequest;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import com.example.challenge.services.VotoService;
@@ -42,7 +43,7 @@ public class AssociadoController {
     @ApiOperation("Cadastra um novo associado.")
     @PostMapping
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid Associado associado) {
+    public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid AssociadoRequest associado) {
         Associado associadoAux = associadoService.saveAssociado(associado);
         URI location = getUri(associadoAux.getId());
 
@@ -75,15 +76,6 @@ public class AssociadoController {
         return votoSalvo;
     }
 
-    @ApiOperation("Verifica se o CPF informado é válido.")
-    @PostMapping("/verificaCpf")
-    public ResponseEntity<Object> verificaCpf(@RequestBody String cpf) {
-        RestTemplate restTemplate = new RestTemplate();
-        Object response = restTemplate.getForObject("https://user-info.herokuapp.com/users/" + cpf, String.class);
-
-        return ResponseEntity.ok(response);
-    }
-
     @ApiOperation("Deleta um associado pelo ID informado.")
     @DeleteMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
@@ -99,9 +91,7 @@ public class AssociadoController {
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
                                                      @RequestBody Associado associado) {
 
-        Associado associadoReturn = associadoService.updateAssociado(associadoId, associado);
-
-        return ResponseEntity.ok(associadoReturn);
+        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, associado));
     }
 
     private URI getUri(Long id) {

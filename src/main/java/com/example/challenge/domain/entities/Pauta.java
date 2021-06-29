@@ -1,7 +1,7 @@
 package com.example.challenge.domain.entities;
 
-import com.example.challenge.enums.PautaEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.CreationTimestamp;
@@ -12,6 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 @Entity
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -32,9 +33,9 @@ public class Pauta implements Serializable {
     @OneToMany(mappedBy = "pauta", cascade = CascadeType.ALL)
     private List<Voto> votos;
 
-    private String status = PautaEnum.ABERTA.getDescricao();
+    private String status;
 
-    private String resultado = PautaEnum.INDEFINIDO.getDescricao();
+    private String resultado;
 
     @JsonFormat(pattern = "dd/MM/YYYY HH:mm:ss")
     @CreationTimestamp

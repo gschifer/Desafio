@@ -1,6 +1,7 @@
 package com.example.challenge.exceptions.handler;
 
 import com.example.challenge.exceptions.*;
+import com.example.challenge.exceptions.associadoExceptions.CPFInvalidoException;
 import com.example.challenge.exceptions.pautaExceptions.PautaInvalidaException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -9,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,8 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
     public static final String MSG_ERRO_USUARIO = "Ocorreu um erro interno inesperado no sistema. Tente novamente, " +
                                          "se o problema persistir, entre em contato com o administrador do sistema.";
+
+    private MessageSource messageSource;
 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception ex,
@@ -321,9 +325,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
         List<FieldError> erros = ex.getBindingResult().getFieldErrors();
         List<Field> fields = erros.stream()
-                .map(fieldError -> Field.builder()
-                        .name(fieldError.getField())
-                        .message(fieldError.getDefaultMessage()).build())
+                .map(fieldError -> {
+                            String message = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
+
+                            return Field.builder()
+                                    .name(fieldError.getField())
+                                    .message(message).build();
+                        })
                 .collect(Collectors.toList());
 
         ProblemType type   = ProblemType.DADOS_INVALIDOS;
@@ -335,6 +343,22 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                 .campos(fields).build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
+    }
+
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            CPFInvalidoException.class
+    })
+    public ResponseEntity<?> handleCPFInvalidoException(CPFInvalidoException ex,
+                                                        WebRequest request) {
+        HttpStatus status  = HttpStatus.BAD_REQUEST;
+        ProblemType type   = ProblemType.CPF_INVALIDO;
+        String detail      = ex.getMessage();
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
     private Problem.ProblemBuilder createProblemBuilder(HttpStatus status,

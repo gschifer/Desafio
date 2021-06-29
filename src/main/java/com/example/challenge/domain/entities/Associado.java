@@ -1,8 +1,7 @@
 package com.example.challenge.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,6 +13,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Builder
 @Entity
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

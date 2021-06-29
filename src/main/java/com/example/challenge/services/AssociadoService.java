@@ -1,23 +1,25 @@
 package com.example.challenge.services;
 
+import com.example.challenge.domain.CPF;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
-import com.example.challenge.exceptions.AtributoInvalidoException;
+import com.example.challenge.domain.mapper.AssociadoMapper;
+import com.example.challenge.domain.request.AssociadoRequest;
 import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.VotoInvalidoException;
+import com.example.challenge.exceptions.associadoExceptions.CPFInvalidoException;
 import com.example.challenge.repository.AssociadoRepository;
 import com.example.challenge.repository.VotoRepository;
 
 import static org.junit.Assert.*;
 
-import org.junit.jupiter.api.Assertions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,11 +36,7 @@ public class AssociadoService {
     }
 
     public Associado getAssociado(Long associadoId) {
-        Associado associado = associadoRepository.findById(associadoId)
-                .orElseThrow(() -> new AssociadoNaoEncontradoException(associadoId));
-
-
-        return associado;
+        return associadoRepository.findById(associadoId).orElseThrow(() -> new AssociadoNaoEncontradoException(associadoId));
     }
 
     public void validaAssociado(Long associadoId, Long pautaId) {
@@ -49,17 +47,12 @@ public class AssociadoService {
 
 
     @Transactional
-    public Associado saveAssociado(Associado associado) {
-        try {
-            Assert.isNull(associado.getId(), "Você não pode passar o atributo 'ID' para a pauta. Considere removê-lo.");
-            Assert.isNull(associado.getVotos(), "Você não pode passar o atributo 'votos' para a pauta. Considere removê-lo.");
-            Assert.isNull(associado.getCreatedAt(), "Você não pode passar o atributo 'createdAt' para a pauta. Considere removê-lo.");
-            Assert.isNull(associado.getUpdatedAt(), "Você não pode passar o atributo 'updatedAt' para a pauta. Considere removê-lo.");
-        } catch (IllegalArgumentException ex) {
-            throw new AtributoInvalidoException(ex.getMessage());
+    public Associado saveAssociado(AssociadoRequest request) {
+        if (!request.getCpf().isEmpty()) {
+            validaCpf(request.getCpf());
         }
 
-        return associadoRepository.save(associado);
+        return associadoRepository.save(AssociadoMapper.map(request));
     }
 
     public List<Associado> getAssociados() {
@@ -88,5 +81,12 @@ public class AssociadoService {
 
         return associadoRepository.save(associado);
 
+    }
+
+    public void validaCpf(String cpf) {
+        RestTemplate restTemplate = new RestTemplate();
+        CPF response = restTemplate.getForObject("https://user-info.herokuapp.com/users/" + cpf, CPF.class);
+
+        if (response.getStatus().equals("UNABLE_TO_VOTE"))  throw new CPFInvalidoException(cpf);
     }
 }

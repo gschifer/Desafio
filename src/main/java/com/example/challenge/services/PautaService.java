@@ -3,9 +3,9 @@ package com.example.challenge.services;
 import com.example.challenge.contador.Contador;
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
-import com.example.challenge.enums.PautaEnum;
+import com.example.challenge.domain.mapper.PautaMapper;
+import com.example.challenge.domain.request.PautaRequest;
 import com.example.challenge.enums.VotoEnum;
-import com.example.challenge.exceptions.AtributoInvalidoException;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.pautaExceptions.*;
 import com.example.challenge.repository.PautaRepository;
@@ -14,11 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
-import org.junit.jupiter.api.Assertions;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.MatcherAssert.*;
-
+import static com.example.challenge.enums.PautaEnum.*;
 import java.util.List;
 
 @Service
@@ -45,8 +41,8 @@ public class PautaService {
         String pautaStatus = pautaExiste.getStatus();
 
 
-        if (pautaStatus.equals(PautaEnum.ABERTA.getDescricao())) throw new PautaInvalidaException();
-        if (pautaStatus.equals(PautaEnum.ENCERRADA.getDescricao()))throw new PautaEncerradaException();
+        if (pautaStatus.equals(ABERTA.getDescricao())) throw new PautaInvalidaException();
+        if (pautaStatus.equals(ENCERRADA.getDescricao()))throw new PautaEncerradaException();
     }
 
 
@@ -54,13 +50,13 @@ public class PautaService {
         Pauta pauta = this.getPauta(pautaId);
         List<Voto> votos = votoRepository.findByPautaId(pautaId);
 
-        if (!pauta.getResultado().equals(PautaEnum.EMPATE.getDescricao())) {
+        if (!pauta.getResultado().equals(EMPATE.getDescricao())) {
             throw new ReaberturaInvalidaException("Você não pode reabrir uma pauta que não está empatada.");
         }
 
         votos.stream().forEach(voto -> votoRepository.deleteById(voto.getId()));
-        pauta.setResultado(PautaEnum.INDEFINIDO.getDescricao());
-        pauta.setStatus(PautaEnum.ABERTA.getDescricao());
+        pauta.setResultado(INDEFINIDO.getDescricao());
+        pauta.setStatus(ABERTA.getDescricao());
 
         return this.pautaRepository.save(pauta);
 
@@ -75,7 +71,7 @@ public class PautaService {
 
         Pauta pautaAtualizada = atualizaResultadoDaPauta(pauta, votos);
 
-        pautaAtualizada.setStatus(PautaEnum.ENCERRADA.getDescricao());
+        pautaAtualizada.setStatus(ENCERRADA.getDescricao());
         pautaRepository.save(pautaAtualizada);
     }
 
@@ -96,27 +92,19 @@ public class PautaService {
                 .filter(v -> v.getDescricaoVoto().equals(VotoEnum.NAO.getDescricao())).count();
 
         if (votosAfavor > votosContra) {
-            pauta.setResultado(PautaEnum.APROVADA.getDescricao());
+            pauta.setResultado(APROVADA.getDescricao());
         } else if (votosAfavor < votosContra) {
-            pauta.setResultado(PautaEnum.REPROVADA.getDescricao());
+            pauta.setResultado(REPROVADA.getDescricao());
         } else {
-            pauta.setResultado(PautaEnum.EMPATE.getDescricao());
+            pauta.setResultado(EMPATE.getDescricao());
         }
 
         return pauta;
     }
 
     @Transactional
-    public Pauta savePauta(Pauta pauta) {
-        try {
-             Assert.isNull(pauta.getId(), "Você não pode passar o atributo 'ID' para a pauta. Considere removê-lo.");
-             Assert.isNull(pauta.getVotos(), "Você não pode passar o atributo 'votos' para a pauta. Considere removê-lo.");
-             Assert.isNull(pauta.getStatus(), "Você não pode passar o atributo 'status' para a pauta. Considere removê-lo.");
-             Assert.isNull(pauta.getResultado(), "Você não pode passar o atributo 'resultado' para a pauta. Considere removê-lo.");
-        } catch (IllegalArgumentException ex) {
-            throw new AtributoInvalidoException(ex.getMessage());
-        }
-        return pautaRepository.save(pauta);
+    public Pauta savePauta(PautaRequest pauta) {
+        return pautaRepository.save(PautaMapper.map(pauta));
     }
 
     public List<Pauta> getPautas() {
@@ -130,7 +118,7 @@ public class PautaService {
     }
 
     public List<Pauta> getPautasEmpatadas() {
-        List<Pauta> pautasEmpatadas = pautaRepository.findByResultado(PautaEnum.EMPATE.getDescricao());
+        List<Pauta> pautasEmpatadas = pautaRepository.findByResultado(EMPATE.getDescricao());
 
         if (pautasEmpatadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta empatada no momento.");
 
@@ -138,7 +126,7 @@ public class PautaService {
     }
 
     public List<Pauta> getPautasAprovadas() {
-        List<Pauta> pautasAprovadas = pautaRepository.findByResultado(PautaEnum.APROVADA.getDescricao());
+        List<Pauta> pautasAprovadas = pautaRepository.findByResultado(APROVADA.getDescricao());
 
         if (pautasAprovadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta aprovada no momento.");
 
@@ -146,7 +134,7 @@ public class PautaService {
     }
 
     public List<Pauta> getPautasReprovadas() {
-        List<Pauta> pautasReprovadas = pautaRepository.findByResultado(PautaEnum.REPROVADA.getDescricao());
+        List<Pauta> pautasReprovadas = pautaRepository.findByResultado(REPROVADA.getDescricao());
 
         if (pautasReprovadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta reprovada no momento.");
 
@@ -167,15 +155,15 @@ public class PautaService {
         Pauta pauta = getPauta(pautaId);
         verificaSePodeIrEmVotacao(pauta);
 
-        pauta.setStatus(PautaEnum.EM_VOTACAO.getDescricao());
+        pauta.setStatus(EM_VOTACAO.getDescricao());
         pautaRepository.save(pauta);
 
         new Contador(tempo, pautaId, this);
     }
 
     private void verificaSePodeIrEmVotacao(Pauta pauta) {
-        if (pauta.getStatus().equals(PautaEnum.ABERTA.getDescricao())
-                && pauta.getResultado().equals(PautaEnum.INDEFINIDO.getDescricao())) {
+        if (pauta.getStatus().equals(ABERTA.getDescricao())
+                && pauta.getResultado().equals(INDEFINIDO.getDescricao())) {
             return;
         }
             throw new PautaEmVotacaoException(pauta.getId());

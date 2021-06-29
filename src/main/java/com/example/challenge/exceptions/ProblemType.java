@@ -16,7 +16,8 @@ public enum ProblemType {
     RECURSO_NAO_ENCONTRADO("/recurso-nao-encontrado", "Recurso não encontrado."),
     ERRO_DE_SISTEMA("/erro-de-sistema", "Erro de sistema."),
     DADOS_INVALIDOS("/dados-invalidos", "Dados inválidos."),
-    ATRIBUTO_INVALIDO("/atributo-invalido", "Atributo inválido.");
+    ATRIBUTO_INVALIDO("/atributo-invalido", "Atributo inválido."),
+    CPF_INVALIDO("/cpf-invalido", "CPF inválido.");
 
     private String uri;
     private String title;

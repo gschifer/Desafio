@@ -1,6 +1,7 @@
 package com.example.challenge.controllers;
 
 import com.example.challenge.domain.entities.Pauta;
+import com.example.challenge.domain.request.PautaRequest;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import com.example.challenge.services.VotoService;
@@ -14,7 +15,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1/pautas")
@@ -104,7 +104,7 @@ public class PautaController {
     @ApiOperation("Cadastra uma nova pauta.")
     @PostMapping
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Pauta> salvaPauta(@RequestBody Pauta pauta) {
+    public ResponseEntity<Pauta> salvaPauta(@RequestBody PautaRequest pauta) {
         Pauta pautaAux = pautaService.savePauta(pauta);
 
         URI location = getUri(pautaAux.getId());
