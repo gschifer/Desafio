@@ -1,6 +1,7 @@
 package com.example.challenge.services;
 
 import com.example.challenge.contador.Contador;
+import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.domain.mapper.PautaMapper;
@@ -174,4 +175,14 @@ public class PautaService {
     }
 
 
+    public Voto votaNaPauta(Voto voto, Long associadoId, Long pautaId) {
+        associadoService.validaAssociado(associadoId, pautaId);
+        validaPauta(pautaId);
+
+        Associado associado = associadoService.getAssociado(associadoId);
+        voto.setAssociado(associado);
+        voto.setPauta(getPauta(pautaId));
+
+        return votoRepository.save(voto);
+    }
 }

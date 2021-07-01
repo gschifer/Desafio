@@ -61,19 +61,8 @@ public class AssociadoController {
     @ApiOperation("Cadastra o voto do associado para a pauta especificada.")
     @PostMapping("/{associadoId}/votar/{pautaId}")
     @Secured({"ROLE_ADMIN"})
-    public Voto votaEmUmaPauta(@RequestBody Voto voto,
-                               @PathVariable Long associadoId,
-                               @PathVariable Long pautaId) {
-
-        associadoService.validaAssociado(associadoId, pautaId);
-        pautaService.validaPauta(pautaId);
-
-        Associado associado = associadoService.getAssociado(associadoId);
-        voto.setAssociado(associado);
-        voto.setPauta(pautaService.getPauta(pautaId));
-        Voto votoSalvo = votoService.saveVoto(voto);
-
-        return votoSalvo;
+    public Voto votaEmUmaPauta(@RequestBody Voto voto, @PathVariable Long associadoId, @PathVariable Long pautaId) {
+        return pautaService.votaNaPauta(voto, associadoId, pautaId);
     }
 
     @ApiOperation("Deleta um associado pelo ID informado.")

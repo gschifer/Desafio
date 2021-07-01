@@ -96,7 +96,6 @@ public class PautaController {
     @Secured({"ROLE_ADMIN"})
     public void colocaPautaEmVotacao(@PathVariable Long pautaId,
                                      @RequestParam(name = "tempo", required = false) Integer tempo) {
-
         pautaService.colocaPautaEmVotacao(pautaId, tempo);
     }
 

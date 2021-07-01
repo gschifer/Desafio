@@ -17,8 +17,6 @@ public class VotoService {
     }
 
     public Voto saveVoto(Voto voto) {
-        Voto votoSalvo = votoRepository.save(voto);
-
-        return votoSalvo;
+        return votoRepository.save(voto);
     }
 }
