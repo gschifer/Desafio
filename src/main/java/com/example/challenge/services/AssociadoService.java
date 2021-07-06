@@ -69,13 +69,11 @@ public class AssociadoService {
     }
 
     @Transactional
-    public Associado updateAssociado(Long associadoId, Associado associadoRequest) {
+    public Associado updateAssociado(Long associadoId, AssociadoRequest request) {
         Associado associado = this.getAssociado(associadoId);
-        assertNull(associadoRequest.getId());
+        BeanUtils.copyProperties(request, associado, "id", "votos");
 
-        BeanUtils.copyProperties(associadoRequest, associado, "id", "votos");
-
-        return associadoRepository.save(associado);
+        return associadoRepository.save(AssociadoMapper.map(request));
 
     }
 //

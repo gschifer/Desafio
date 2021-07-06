@@ -78,9 +78,9 @@ public class AssociadoController {
     @PutMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
-                                                     @RequestBody Associado associado) {
+                                                     @RequestBody AssociadoRequest request) {
 
-        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, associado));
+        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, request));
     }
 
     private URI getUri(Long id) {

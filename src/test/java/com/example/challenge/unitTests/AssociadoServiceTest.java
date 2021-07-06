@@ -2,9 +2,10 @@ package com.example.challenge.unitTests;
 
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
-import com.example.challenge.domain.entities.Voto;
+import com.example.challenge.domain.mapper.AssociadoMapper;
 import com.example.challenge.domain.request.AssociadoRequest;
 import com.example.challenge.domain.request.PautaRequest;
+import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.VotoInvalidoException;
 import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
 import com.example.challenge.repository.AssociadoRepository;
@@ -20,6 +21,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.Mockito.*;
@@ -102,13 +105,69 @@ public class AssociadoServiceTest {
 
     @Test
     public void deveLancarVotoInvalido() {
-        Voto voto = new Voto(1L, "Sim", associado, pauta);
-
         doThrow(VotoInvalidoException.class).when(votoRepository).findByAssociadoIdAndPautaId(1L, 1L);
 
         Executable executable = () -> associadoService.validaAssociado(1L, 1L);
 
         assertThrows(VotoInvalidoException.class, executable);
+    }
+
+    @Test
+    public void deveBuscarAssociados() {
+        Associado associado2 = Associado.builder()
+                .id(2L)
+                .email("joao@gmail.com")
+                .nome("João")
+                .build();
+
+        List<Associado> associados = new ArrayList<>();
+        associados.add(associado);
+        associados.add(associado2);
+        when(associadoRepository.findAll()).thenReturn(associados);
+
+        associadoService.getAssociados();
+        verify(associadoService).getAssociados();
+    }
+
+    @Test
+    public void deveLancarEmptyListException() {
+        when(associadoRepository.findAll()).thenThrow(EmptyListException.class);
+        Executable executable = () -> associadoService.getAssociados();
+
+        assertThrows(EmptyListException.class, executable);
+        verify(associadoService).getAssociados();
+    }
+
+    @Test
+    public void deveExcluirAssociado() {
+        doNothing().when(associadoRepository).deleteById(anyLong());
+
+        associadoService.deleteAssociado(1L);
+
+        verify(associadoService).deleteAssociado(1L);
+    }
+
+    @Test
+    public void deveLancarAssociadoNaoEncontrado() {
+        doThrow(AssociadoNaoEncontradoException.class).when(associadoRepository).deleteById(anyLong());
+
+        Executable executable = () -> associadoService.deleteAssociado(3L);
+
+        assertThrows(AssociadoNaoEncontradoException.class, executable);
+        verify(associadoService).deleteAssociado(3L);
+    }
+
+    @Test
+    public void deveAtualizarAssociado() {
+        AssociadoRequest associadoAtualizado = associadoRequest;
+        associadoAtualizado.setEmail("gabriel@gmail.com");
+
+        when(associadoRepository.findById(anyLong())).thenReturn(Optional.ofNullable(associado));
+        when(associadoRepository.save(any())).thenReturn(AssociadoMapper.map(associadoAtualizado));
+
+        associadoService.updateAssociado(1L, associadoAtualizado);
+
+        verify(associadoService, times(1)).updateAssociado(1L, associadoRequest);
     }
 
 }
