@@ -27,16 +27,10 @@ public class Associado implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(nullable = false)
     private String nome;
 
-    @NotBlank
-    @Email
-    @Column(nullable = false)
     private String email;
 
-    @Size(min = 11, max = 11)
     private String cpf;
 
     @OneToMany(mappedBy = "associado", cascade = CascadeType.ALL)

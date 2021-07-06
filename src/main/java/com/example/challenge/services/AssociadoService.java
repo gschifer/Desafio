@@ -48,10 +48,6 @@ public class AssociadoService {
 
     @Transactional
     public Associado saveAssociado(AssociadoRequest request) {
-        if (!request.getCpf().isEmpty()) {
-            validaCpf(request.getCpf());
-        }
-
         return associadoRepository.save(AssociadoMapper.map(request));
     }
 
@@ -82,11 +78,11 @@ public class AssociadoService {
         return associadoRepository.save(associado);
 
     }
-
-    public void validaCpf(String cpf) {
-        RestTemplate restTemplate = new RestTemplate();
-        CPF response = restTemplate.getForObject("https://user-info.herokuapp.com/users/" + cpf, CPF.class);
-
-        if (response.getStatus().equals("UNABLE_TO_VOTE"))  throw new CPFInvalidoException(cpf);
-    }
+//
+//    public void validaCpf(String cpf) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        CPF response = restTemplate.getForObject("https://user-info.herokuapp.com/users/" + cpf, CPF.class);
+//
+//        if (response.getStatus().equals("UNABLE_TO_VOTE"))  throw new CPFInvalidoException(cpf);
+//    }
 }
