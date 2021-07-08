@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import static com.example.challenge.enums.PautaEnum.*;
+
 import java.util.List;
+
+import static com.example.challenge.enums.PautaEnum.*;
 
 @Service
 public class PautaService {
@@ -32,18 +34,17 @@ public class PautaService {
     }
 
     public Pauta getPauta(Long pautaId) {
-        Pauta pauta = pautaRepository.findById(pautaId).orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
-
-        return pauta;
+       return pautaRepository.findById(pautaId)
+               .orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
     }
 
     public void validaPauta(Long pautaId) {
-        Pauta pautaExiste = this.getPauta(pautaId);
-        String pautaStatus = pautaExiste.getStatus();
-
+        Pauta pauta           = this.getPauta(pautaId);
+        String pautaStatus    = pauta.getStatus();
+        String pautaResultado = pauta.getResultado();
 
         if (pautaStatus.equals(ABERTA.getDescricao())) throw new PautaInvalidaException();
-        if (pautaStatus.equals(ENCERRADA.getDescricao()))throw new PautaEncerradaException();
+        if (pautaResultado.equals(ENCERRADA.getDescricao()))throw new PautaEncerradaException();
     }
 
 
@@ -55,12 +56,11 @@ public class PautaService {
             throw new ReaberturaInvalidaException("Você não pode reabrir uma pauta que não está empatada.");
         }
 
-        votos.stream().forEach(voto -> votoRepository.deleteById(voto.getId()));
+        excluiVotosDaPauta(votos);
         pauta.setResultado(INDEFINIDO.getDescricao());
         pauta.setStatus(ABERTA.getDescricao());
 
-        return this.pautaRepository.save(pauta);
-
+        return pautaRepository.save(pauta);
     }
 
 
@@ -84,23 +84,22 @@ public class PautaService {
     }
 
     private Pauta atualizaResultadoDaPauta(Pauta pauta, List<Voto> votos) {
-        long votosAfavor = votos
-                .stream()
+        long votosAfavor = votos.stream()
                 .filter(v -> v.getDescricaoVoto().equals(VotoEnum.SIM.getDescricao())).count();
 
-        long votosContra = votos
-                .stream()
+        long votosContra = votos.stream()
                 .filter(v -> v.getDescricaoVoto().equals(VotoEnum.NAO.getDescricao())).count();
 
-        if (votosAfavor > votosContra) {
-            pauta.setResultado(APROVADA.getDescricao());
-        } else if (votosAfavor < votosContra) {
-            pauta.setResultado(REPROVADA.getDescricao());
-        } else {
-            pauta.setResultado(EMPATE.getDescricao());
-        }
+        pauta.setResultado(verificaResultado(votosAfavor, votosContra));
 
         return pauta;
+    }
+
+    private String verificaResultado(long votosAfavor, long votosContra) {
+        if (votosAfavor > votosContra) return APROVADA.getDescricao();
+         else if (votosAfavor < votosContra) return REPROVADA.getDescricao();
+
+            return EMPATE.getDescricao();
     }
 
     @Transactional
@@ -174,7 +173,6 @@ public class PautaService {
         updatePauta(pautaId);
     }
 
-
     public Voto votaNaPauta(Voto voto, Long associadoId, Long pautaId) {
         associadoService.validaAssociado(associadoId, pautaId);
         validaPauta(pautaId);
@@ -184,5 +182,9 @@ public class PautaService {
         voto.setPauta(getPauta(pautaId));
 
         return votoRepository.save(voto);
+    }
+
+    private void excluiVotosDaPauta(List<Voto> votos) {
+        votos.stream().forEach(voto -> votoRepository.deleteById(voto.getId()));
     }
 }

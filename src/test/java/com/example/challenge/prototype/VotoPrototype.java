@@ -1,13 +1,14 @@
 package com.example.challenge.prototype;
 
 import com.example.challenge.domain.entities.Voto;
-import com.example.challenge.enums.VotoEnum;
+
+import static com.example.challenge.enums.VotoEnum.SIM;
 
 public class VotoPrototype {
     public static Voto anVoto() {
-        Voto voto = new Voto();
-        voto.setDescricaoVoto(VotoEnum.SIM.getDescricao());
-
-        return voto;
+        return Voto.builder()
+                .id(1L)
+                .descricaoVoto(SIM.getDescricao())
+                .build();
     }
 }

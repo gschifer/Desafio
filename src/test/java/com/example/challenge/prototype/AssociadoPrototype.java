@@ -4,10 +4,12 @@ import com.example.challenge.domain.entities.Associado;
 
 public class AssociadoPrototype {
     public static Associado anAssociado() {
-        Associado associado = new Associado();
-        associado.setNome("Gabriel");
-        associado.setEmail("gabi@hotmail.com");
-        associado.setCpf("02692586301");
+        Associado associado = Associado.builder()
+                .id(1L)
+                .nome("Gabriel")
+                .cpf("03607757098")
+                .email("gabi@gmail.com")
+                .build();
 
         return associado;
     }

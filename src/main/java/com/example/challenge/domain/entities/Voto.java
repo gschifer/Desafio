@@ -2,6 +2,7 @@ package com.example.challenge.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -10,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 @Entity
+@Builder
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @AllArgsConstructor

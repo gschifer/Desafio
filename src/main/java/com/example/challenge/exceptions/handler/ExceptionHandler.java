@@ -133,18 +133,17 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                        HttpStatus status,
                                                                        WebRequest request) {
 
-        String propriedadesValidas = ex.getKnownPropertyIds().stream().filter(e -> e != "id")
-                                        .collect(Collectors.toList()).toString();
+        String propriedadesValidas = ex.getKnownPropertyIds().stream()
+                .filter(e -> e != "id")
+                .collect(Collectors.toList()).toString();
+
         LocalDateTime time          = LocalDateTime.now();
         String propriedadeInvalida  = ex.getPropertyName();
 
         String detail = String.format("A propriedade '%s' fornecida não existe, você só pode utilizar a(s) seguinte(s) " +
                 "propriedade(s) no corpo de requisição: '%s'.", propriedadeInvalida, propriedadesValidas);
 
-         Problem problem = createProblemBuilder(status,
-                                                ProblemType.PROPRIEDADE_NAO_RECONHECIDA,
-                                                detail,
-                                                time)
+         Problem problem = createProblemBuilder(status, ProblemType.PROPRIEDADE_NAO_RECONHECIDA, detail, time)
                                                 .mensagemUsuario(MSG_ERRO_USUARIO)
                                                 .build();
 
@@ -156,24 +155,20 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                           HttpStatus status,
                                                           WebRequest request) {
 
-        String propriedade = ex.getPath()
-                                .stream()
-                                .map(e -> e.getFieldName())
-                                .collect(Collectors.joining("."));
+        String propriedade = ex.getPath().stream()
+                .map(e -> e.getFieldName())
+                .collect(Collectors.joining("."));
 
         Object valor        = ex.getValue();
         String tipoInvalido = ex.getValue().getClass().getSimpleName();
         String tipoValido   = ex.getTargetType().getSimpleName();
+        LocalDateTime time  = LocalDateTime.now();
 
         String detail = String.format("Você digitou o valor: '%s', que é de um tipo inválido" +
                         " '%s', para a propriedade '%s', ajuste o valor da propriedade para o tipo '%s'.",
                 valor, tipoInvalido, propriedade, tipoValido);
 
-        Problem problem = createProblemBuilder(
-                            status,
-                            ProblemType.MENSAGEM_INCOMPREENSIVEL,
-                            detail,
-                            LocalDateTime.now())
+        Problem problem = createProblemBuilder(status, ProblemType.MENSAGEM_INCOMPREENSIVEL, detail, time)
                             .mensagemUsuario(MSG_ERRO_USUARIO)
                             .build();
 
@@ -257,8 +252,8 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
         String   detail  = String.format("O parâmetro de URL '%s' recebeu o valor '%s' que é de um tipo '%s' inválido." +
                                             " Corrija colocando um valor compatível com o tipo '%s'.",
-                                            parametroCorreto, parametroInvalido,
-                                            tipoParametroInvalido, tipoParametroCorreto);
+                parametroCorreto, parametroInvalido, tipoParametroInvalido, tipoParametroCorreto);
+
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time)

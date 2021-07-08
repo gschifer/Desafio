@@ -8,10 +8,11 @@ import com.example.challenge.domain.request.PautaRequest;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.VotoInvalidoException;
 import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
+import com.example.challenge.prototype.AssociadoPrototype;
+import com.example.challenge.prototype.PautaPrototype;
 import com.example.challenge.repository.AssociadoRepository;
 import com.example.challenge.repository.VotoRepository;
 import com.example.challenge.services.AssociadoService;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,11 +21,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,18 +52,9 @@ public class AssociadoServiceTest {
     private PautaRequest pautaRequest;
 
     @BeforeEach
-    public void init() {
-        associado = Associado.builder()
-                .nome("Gabriel")
-                .cpf("03607758026")
-                .email("gabi@gmail.com")
-                .id(1L)
-                .build();
-
-        pauta = Pauta.builder()
-                .id(1L)
-                .titulo("Pauta 1")
-                .build();
+    public void setup() {
+        associado = AssociadoPrototype.anAssociado();
+        pauta = PautaPrototype.anPauta();
 
         pautaRequest = new PautaRequest("Pauta 1");
         associadoRequest = new AssociadoRequest("Gabriel", "03607758026", "gabi@gmail.com");
@@ -73,6 +68,7 @@ public class AssociadoServiceTest {
         associadoService.saveAssociado(associadoRequest);
 
         verify(associadoService).saveAssociado(associadoRequest);
+        verifyNoMoreInteractions(associadoService);
     }
 
     @Test
@@ -83,6 +79,7 @@ public class AssociadoServiceTest {
 
         assertNotNull(associadoBuscado);
         verify(associadoService).getAssociado(1L);
+        verifyNoMoreInteractions(associadoService);
     }
 
     @Test
@@ -91,6 +88,7 @@ public class AssociadoServiceTest {
 
         Executable executable = () -> associadoService.getAssociado(10L);
 
+        verifyNoMoreInteractions(associadoService);
         assertThrows(AssociadoNaoEncontradoException.class, executable);
     }
 
@@ -149,7 +147,7 @@ public class AssociadoServiceTest {
 
     @Test
     public void deveLancarAssociadoNaoEncontrado() {
-        doThrow(AssociadoNaoEncontradoException.class).when(associadoRepository).deleteById(anyLong());
+        doThrow(EmptyResultDataAccessException.class).when(associadoRepository).deleteById(anyLong());
 
         Executable executable = () -> associadoService.deleteAssociado(3L);
 
