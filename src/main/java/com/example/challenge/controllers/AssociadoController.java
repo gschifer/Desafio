@@ -5,13 +5,11 @@ import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.domain.request.AssociadoRequest;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
-import com.example.challenge.services.VotoService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
@@ -22,13 +20,11 @@ import java.util.List;
 @RequestMapping("api/v1/associados")
 public class AssociadoController {
     private AssociadoService associadoService;
-    private VotoService votoService;
     private PautaService pautaService;
 
     @Autowired
-    public AssociadoController(AssociadoService associadoService, VotoService votoService, PautaService pautaService) {
+    public AssociadoController(AssociadoService associadoService, PautaService pautaService) {
         this.associadoService = associadoService;
-        this.votoService = votoService;
         this.pautaService = pautaService;
     }
 

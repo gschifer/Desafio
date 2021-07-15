@@ -2,11 +2,8 @@ package com.example.challenge.controllers;
 
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.request.PautaRequest;
-import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
-import com.example.challenge.services.VotoService;
 import io.swagger.annotations.ApiOperation;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -20,14 +17,10 @@ import java.util.List;
 @RequestMapping("api/v1/pautas")
 public class PautaController {
     private PautaService pautaService;
-    private AssociadoService associadoService;
-    private VotoService votoService;
 
     @Autowired
-    public PautaController(PautaService pautaService, AssociadoService associadoService, VotoService votoService) {
+    public PautaController(PautaService pautaService) {
         this.pautaService = pautaService;
-        this.associadoService = associadoService;
-        this.votoService = votoService;
     }
 
     @ApiOperation("Lista todas as pautas cadastradas.")
@@ -91,14 +84,13 @@ public class PautaController {
     }
 
     @ApiOperation("Coloca uma pauta em votação por um tempo específico determinado. Obs: Por padrão está como 1 min " +
-                     "caso não houver um tempo específico determinado por parâmetro.")
+            "caso não houver um tempo específico determinado por parâmetro.")
     @PostMapping("/{pautaId}/abrirVotacao")
     @Secured({"ROLE_ADMIN"})
     public void colocaPautaEmVotacao(@PathVariable Long pautaId,
                                      @RequestParam(name = "tempo", required = false) Integer tempo) {
         pautaService.colocaPautaEmVotacao(pautaId, tempo);
     }
-
 
     @ApiOperation("Cadastra uma nova pauta.")
     @PostMapping
@@ -110,7 +102,6 @@ public class PautaController {
 
         return ResponseEntity.created(location).body(pautaAux);
     }
-
 
     private URI getUri(Long id) {
         return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")

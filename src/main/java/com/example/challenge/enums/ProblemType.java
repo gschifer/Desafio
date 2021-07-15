@@ -1,4 +1,4 @@
-package com.example.challenge.exceptions;
+package com.example.challenge.enums;
 
 import lombok.Getter;
 

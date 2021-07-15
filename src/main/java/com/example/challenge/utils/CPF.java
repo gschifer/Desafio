@@ -1,4 +1,4 @@
-package com.example.challenge.domain;
+package com.example.challenge.utils;
 
 import lombok.Data;
 

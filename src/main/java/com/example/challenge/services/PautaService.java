@@ -1,6 +1,5 @@
 package com.example.challenge.services;
 
-import com.example.challenge.contador.Contador;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
@@ -11,6 +10,7 @@ import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.pautaExceptions.*;
 import com.example.challenge.repository.PautaRepository;
 import com.example.challenge.repository.VotoRepository;
+import com.example.challenge.utils.Contador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -34,22 +34,22 @@ public class PautaService {
     }
 
     public Pauta getPauta(Long pautaId) {
-       return pautaRepository.findById(pautaId)
-               .orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
+        return pautaRepository.findById(pautaId)
+                .orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
     }
 
     public void validaPauta(Long pautaId) {
-        Pauta pauta           = this.getPauta(pautaId);
-        String pautaStatus    = pauta.getStatus();
+        Pauta pauta = getPauta(pautaId);
+        String pautaStatus = pauta.getStatus();
         String pautaResultado = pauta.getResultado();
 
         if (pautaStatus.equals(ABERTA.getDescricao())) throw new PautaInvalidaException();
-        if (pautaResultado.equals(ENCERRADA.getDescricao()))throw new PautaEncerradaException();
+        if (pautaResultado.equals(ENCERRADA.getDescricao())) throw new PautaEncerradaException();
     }
 
 
     public Pauta reabrePauta(Long pautaId) {
-        Pauta pauta = this.getPauta(pautaId);
+        Pauta pauta = getPauta(pautaId);
         List<Voto> votos = votoRepository.findByPautaId(pautaId);
 
         if (!pauta.getResultado().equals(EMPATE.getDescricao())) {
@@ -68,7 +68,7 @@ public class PautaService {
         if (naoPodeProsseguir(pautaId)) return;
 
         List<Voto> votos = votoRepository.findByPautaId(pautaId);
-        Pauta pauta     = getPauta(pautaId);
+        Pauta pauta = getPauta(pautaId);
 
         Pauta pautaAtualizada = atualizaResultadoDaPauta(pauta, votos);
 
@@ -97,9 +97,9 @@ public class PautaService {
 
     private String verificaResultado(long votosAfavor, long votosContra) {
         if (votosAfavor > votosContra) return APROVADA.getDescricao();
-         else if (votosAfavor < votosContra) return REPROVADA.getDescricao();
+        else if (votosAfavor < votosContra) return REPROVADA.getDescricao();
 
-            return EMPATE.getDescricao();
+        return EMPATE.getDescricao();
     }
 
     @Transactional
@@ -166,7 +166,7 @@ public class PautaService {
                 && pauta.getResultado().equals(INDEFINIDO.getDescricao())) {
             return;
         }
-            throw new PautaEmVotacaoException(pauta.getId());
+        throw new PautaEmVotacaoException(pauta.getId());
     }
 
     public void encerraVotacao(Long pautaId) {

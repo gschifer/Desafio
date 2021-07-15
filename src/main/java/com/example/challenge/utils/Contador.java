@@ -1,4 +1,4 @@
-package com.example.challenge.contador;
+package com.example.challenge.utils;
 
 import com.example.challenge.services.PautaService;
 
@@ -11,7 +11,7 @@ public class Contador {
 
     public Contador(int minutos, Long pautaId, PautaService pautaService) {
         service = pautaService;
-        timer   = new Timer();
+        timer = new Timer();
         timer.schedule(new EncerraVotacao(pautaId), minutos * 60000);
     }
 

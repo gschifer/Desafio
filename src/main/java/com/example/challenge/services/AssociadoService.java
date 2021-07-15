@@ -1,25 +1,19 @@
 package com.example.challenge.services;
 
-import com.example.challenge.domain.CPF;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.domain.mapper.AssociadoMapper;
 import com.example.challenge.domain.request.AssociadoRequest;
-import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.VotoInvalidoException;
-import com.example.challenge.exceptions.associadoExceptions.CPFInvalidoException;
+import com.example.challenge.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
 import com.example.challenge.repository.AssociadoRepository;
 import com.example.challenge.repository.VotoRepository;
-
-import static org.junit.Assert.*;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +39,6 @@ public class AssociadoService {
         if (voto.isPresent()) throw new VotoInvalidoException("Associado já votou nesta pauta.");
     }
 
-
     @Transactional
     public Associado saveAssociado(AssociadoRequest request) {
         return associadoRepository.save(AssociadoMapper.map(request));
@@ -70,7 +63,7 @@ public class AssociadoService {
 
     @Transactional
     public Associado updateAssociado(Long associadoId, AssociadoRequest request) {
-        Associado associado = this.getAssociado(associadoId);
+        Associado associado = getAssociado(associadoId);
         BeanUtils.copyProperties(request, associado, "id", "votos");
 
         return associadoRepository.save(AssociadoMapper.map(request));

@@ -1,9 +1,7 @@
 package com.example.challenge.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -17,6 +15,8 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Table(name = "pautas")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Pauta implements Serializable {
 
     private static final long serialVersionUID = 1;
