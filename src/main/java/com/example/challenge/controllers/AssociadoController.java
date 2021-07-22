@@ -16,6 +16,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1/associados")
 public class AssociadoController {
@@ -74,9 +75,9 @@ public class AssociadoController {
     @PutMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
-                                                     @RequestBody AssociadoRequest request) {
+                                                     @RequestBody Associado associado) {
 
-        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, request));
+        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, associado));
     }
 
     private URI getUri(Long id) {

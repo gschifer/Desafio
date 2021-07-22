@@ -1,5 +1,6 @@
 package com.example.challenge.exceptions.handler;
 
+import com.example.challenge.enums.ProblemType;
 import com.example.challenge.exceptions.*;
 import com.example.challenge.exceptions.associadoExceptions.CPFInvalidoException;
 import com.example.challenge.exceptions.pautaExceptions.PautaInvalidaException;
