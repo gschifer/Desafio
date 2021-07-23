@@ -5,7 +5,6 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,7 +25,6 @@ public class Pauta implements Serializable {
     @EqualsAndHashCode.Include
     private Long id;
 
-    @NotBlank
     @Column(nullable = false)
     private String titulo;
 

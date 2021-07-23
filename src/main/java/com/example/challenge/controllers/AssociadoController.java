@@ -40,11 +40,11 @@ public class AssociadoController {
     @ApiOperation("Cadastra um novo associado.")
     @PostMapping
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid AssociadoRequest associado) {
-        Associado associadoAux = associadoService.saveAssociado(associado);
-        URI location = getUri(associadoAux.getId());
+    public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid AssociadoRequest associadoRequest) {
+        Associado associado = associadoService.saveAssociado(associadoRequest);
+        URI location = getUri(associado.getId());
 
-        return ResponseEntity.created(location).body(associadoAux);
+        return ResponseEntity.created(location).body(associado);
     }
 
     @ApiOperation("Lista o associado desejado pelo ID informado.")
@@ -75,9 +75,9 @@ public class AssociadoController {
     @PutMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
-                                                     @RequestBody Associado associado) {
+                                                     @RequestBody Associado associadoRequest) {
 
-        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, associado));
+        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, associadoRequest));
     }
 
     private URI getUri(Long id) {

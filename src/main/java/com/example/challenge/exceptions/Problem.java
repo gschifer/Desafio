@@ -18,6 +18,6 @@ public class Problem {
     private LocalDateTime timeStamp;
 
     //Optional fields
-    private String mensagemUsuario;
-    private List<Field> campos;
+    private String userMessage;
+    private List<Field> fields;
 }

@@ -3,6 +3,7 @@ package com.example.challenge.exceptions.handler;
 import com.example.challenge.enums.ProblemType;
 import com.example.challenge.exceptions.*;
 import com.example.challenge.exceptions.associadoExceptions.CPFInvalidoException;
+import com.example.challenge.exceptions.pautaExceptions.PautaEmVotacaoException;
 import com.example.challenge.exceptions.pautaExceptions.PautaInvalidaException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -68,7 +69,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         String detail       = String.format("O recurso '%s' que você tentou acessar, não existe.", url);
 
         Problem problem = createProblemBuilder(status, type, detail, time).
-                            mensagemUsuario(MSG_ERRO_USUARIO).build();
+                            userMessage(MSG_ERRO_USUARIO).build();
 
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -128,24 +129,49 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            VotoInvalidoException.class
+    })
+    public ResponseEntity<?> handleVotoInvalidoException(VotoInvalidoException ex,
+                                                          WebRequest request) {
+
+        HttpStatus status  = HttpStatus.BAD_REQUEST;
+        ProblemType type   = ProblemType.VOTO_INVALIDO;
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler({
+            PautaEmVotacaoException.class
+    })
+    public ResponseEntity<?> handlePautaEmVotacaoException(PautaEmVotacaoException ex,
+                                                         WebRequest request) {
+
+        HttpStatus status  = HttpStatus.BAD_REQUEST;
+        ProblemType type   = ProblemType.ABERTURA_INVALIDA;
+        LocalDateTime time = LocalDateTime.now();
+
+        Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
     @org.springframework.web.bind.annotation.ExceptionHandler({UnrecognizedPropertyException.class})
     private ResponseEntity<Object> handleUnrecognizedPropertyException(UnrecognizedPropertyException ex,
                                                                        HttpHeaders headers,
                                                                        HttpStatus status,
                                                                        WebRequest request) {
 
-        String propriedadesValidas = ex.getKnownPropertyIds().stream()
-                .filter(e -> e != "id")
-                .collect(Collectors.toList()).toString();
-
         LocalDateTime time          = LocalDateTime.now();
         String propriedadeInvalida  = ex.getPropertyName();
 
-        String detail = String.format("A propriedade '%s' fornecida não existe, você só pode utilizar a(s) seguinte(s) " +
-                "propriedade(s) no corpo de requisição: '%s'.", propriedadeInvalida, propriedadesValidas);
+        String detail = String.format("A propriedade '%s' fornecida no corpo de requisição não existe.", propriedadeInvalida);
 
          Problem problem = createProblemBuilder(status, ProblemType.PROPRIEDADE_NAO_RECONHECIDA, detail, time)
-                                                .mensagemUsuario(MSG_ERRO_USUARIO)
+                                                .userMessage(MSG_ERRO_USUARIO)
                                                 .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -170,7 +196,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                 valor, tipoInvalido, propriedade, tipoValido);
 
         Problem problem = createProblemBuilder(status, ProblemType.MENSAGEM_INCOMPREENSIVEL, detail, time)
-                            .mensagemUsuario(MSG_ERRO_USUARIO)
+                            .userMessage(MSG_ERRO_USUARIO)
                             .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -258,7 +284,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time)
-                                            .mensagemUsuario(MSG_ERRO_USUARIO)
+                                            .userMessage(MSG_ERRO_USUARIO)
                                             .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -325,7 +351,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                             String message = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
 
                             return Field.builder()
-                                    .name(fieldError.getField())
+                                    .property(fieldError.getField())
                                     .message(message).build();
                         })
                 .collect(Collectors.toList());
@@ -336,7 +362,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
 
         Problem problem = createProblemBuilder(status, type, detail, time)
-                .campos(fields).build();
+                .fields(fields).build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }

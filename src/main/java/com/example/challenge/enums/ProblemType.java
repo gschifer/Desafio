@@ -17,7 +17,9 @@ public enum ProblemType {
     ERRO_DE_SISTEMA("/erro-de-sistema", "Erro de sistema."),
     DADOS_INVALIDOS("/dados-invalidos", "Dados inválidos."),
     ATRIBUTO_INVALIDO("/atributo-invalido", "Atributo inválido."),
-    CPF_INVALIDO("/cpf-invalido", "CPF inválido.");
+    CPF_INVALIDO("/cpf-invalido", "CPF inválido."),
+    VOTO_INVALIDO("/voto-invalido", "Voto inválido."),
+    ABERTURA_INVALIDA("abertura-invalida", "Abertura inválida.");
 
     private String uri;
     private String title;

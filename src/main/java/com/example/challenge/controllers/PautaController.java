@@ -95,12 +95,11 @@ public class PautaController {
     @ApiOperation("Cadastra uma nova pauta.")
     @PostMapping
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Pauta> salvaPauta(@RequestBody PautaRequest pauta) {
-        Pauta pautaAux = pautaService.savePauta(pauta);
+    public ResponseEntity<Pauta> salvaPauta(@RequestBody PautaRequest pautaRequest) {
+        Pauta pauta = pautaService.savePauta(pautaRequest);
+        URI location = getUri(pauta.getId());
 
-        URI location = getUri(pautaAux.getId());
-
-        return ResponseEntity.created(location).body(pautaAux);
+        return ResponseEntity.created(location).body(pauta);
     }
 
     private URI getUri(Long id) {
