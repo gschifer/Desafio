@@ -2,7 +2,9 @@ package com.example.challenge.controllers;
 
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.request.PautaRequest;
+import com.example.challenge.openapi.controller.PautaControllerOpenApi;
 import com.example.challenge.services.PautaService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +15,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@Api(tags = "Pautas")
 @RestController
 @RequestMapping("api/v1/pautas")
-public class PautaController {
+public class PautaController implements PautaControllerOpenApi {
     private PautaService pautaService;
 
     @Autowired
@@ -45,7 +48,7 @@ public class PautaController {
     public ResponseEntity deletePauta(@PathVariable Long pautaId) {
         pautaService.deletePauta(pautaId);
 
-        return ResponseEntity.ok().body("Pauta excluída com sucesso.");
+        return ResponseEntity.notFound().build();
     }
 
     @ApiOperation("Lista todas as pautas que estão com o resultado: 'Empatada'.")

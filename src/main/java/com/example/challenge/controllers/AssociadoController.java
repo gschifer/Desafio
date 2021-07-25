@@ -3,6 +3,7 @@ package com.example.challenge.controllers;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.domain.request.AssociadoRequest;
+import com.example.challenge.openapi.controller.AssociadoControllerOpenApi;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import io.swagger.annotations.ApiOperation;
@@ -19,7 +20,7 @@ import java.util.List;
 @CrossOrigin("*")
 @RestController
 @RequestMapping("api/v1/associados")
-public class AssociadoController {
+public class AssociadoController implements AssociadoControllerOpenApi {
     private AssociadoService associadoService;
     private PautaService pautaService;
 
@@ -29,7 +30,6 @@ public class AssociadoController {
         this.pautaService = pautaService;
     }
 
-    @ApiOperation("Lista todos os associados cadastrados.")
     @GetMapping
     public ResponseEntity<List<Associado>> getAssociados() {
         List<Associado> associados = associadoService.getAssociados();
@@ -68,7 +68,7 @@ public class AssociadoController {
     public ResponseEntity<Associado> deleteAssociado(@PathVariable Long associadoId) {
         associadoService.deleteAssociado(associadoId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.notFound().build();
     }
 
     @ApiOperation("Atualiza os dados do associado pelo ID informado.")

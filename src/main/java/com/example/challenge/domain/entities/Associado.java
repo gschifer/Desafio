@@ -1,6 +1,7 @@
 package com.example.challenge.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -21,15 +22,19 @@ public class Associado implements Serializable {
 
     private static final long serialVersionUID = 1;
 
+    @ApiModelProperty(example = "1")
     @Id
     @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ApiModelProperty(example = "João da Silva", required = true)
     private String nome;
 
+    @ApiModelProperty(example = "joao@gmail.com", required = true)
     private String email;
 
+    @ApiModelProperty(example = "087.765.580-27", required = true)
     private String cpf;
 
     @OneToMany(mappedBy = "associado", cascade = CascadeType.ALL)

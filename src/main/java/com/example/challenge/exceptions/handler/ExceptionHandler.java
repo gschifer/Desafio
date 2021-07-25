@@ -150,7 +150,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handlePautaEmVotacaoException(PautaEmVotacaoException ex,
                                                          WebRequest request) {
 
-        HttpStatus status  = HttpStatus.BAD_REQUEST;
+        HttpStatus status  = HttpStatus.CONFLICT;
         ProblemType type   = ProblemType.ABERTURA_INVALIDA;
         LocalDateTime time = LocalDateTime.now();
 
