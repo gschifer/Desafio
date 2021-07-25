@@ -6,7 +6,6 @@ import com.example.challenge.domain.request.AssociadoRequest;
 import com.example.challenge.openapi.controller.AssociadoControllerOpenApi;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -37,7 +36,6 @@ public class AssociadoController implements AssociadoControllerOpenApi {
         return ResponseEntity.ok(associados);
     }
 
-    @ApiOperation("Cadastra um novo associado.")
     @PostMapping
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid AssociadoRequest associadoRequest) {
@@ -47,7 +45,6 @@ public class AssociadoController implements AssociadoControllerOpenApi {
         return ResponseEntity.created(location).body(associado);
     }
 
-    @ApiOperation("Lista o associado desejado pelo ID informado.")
     @GetMapping("/{associadoId}")
     public ResponseEntity<Associado> getAssociado(@PathVariable Long associadoId) {
         Associado associado = associadoService.getAssociado(associadoId);
@@ -55,14 +52,12 @@ public class AssociadoController implements AssociadoControllerOpenApi {
         return ResponseEntity.ok(associado);
     }
 
-    @ApiOperation("Cadastra o voto do associado para a pauta especificada.")
     @PostMapping("/{associadoId}/votar/{pautaId}")
     @Secured({"ROLE_ADMIN"})
     public Voto votaEmUmaPauta(@RequestBody Voto voto, @PathVariable Long associadoId, @PathVariable Long pautaId) {
         return pautaService.votaNaPauta(voto, associadoId, pautaId);
     }
 
-    @ApiOperation("Deleta um associado pelo ID informado.")
     @DeleteMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> deleteAssociado(@PathVariable Long associadoId) {
@@ -71,7 +66,6 @@ public class AssociadoController implements AssociadoControllerOpenApi {
         return ResponseEntity.notFound().build();
     }
 
-    @ApiOperation("Atualiza os dados do associado pelo ID informado.")
     @PutMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
