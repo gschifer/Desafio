@@ -32,7 +32,8 @@ public class SwaggerConfig implements WebMvcConfigurer {
                 .build()
                 .apiInfo(apiInfo())
                 .tags(new Tag("Associados", "Gerencia os associados"),
-                        new Tag("Pautas", "Gerencia as pautas"))
+                        new Tag("Pautas", "Gerencia as pautas"),
+                        new Tag("Usuários", "Gerencia os usuários"))
                 .useDefaultResponseMessages(false)
                 .globalResponseMessage(RequestMethod.GET, globalGetResponseMessage())
                 .globalResponseMessage(RequestMethod.POST, globalPostPutResponseMessage())
