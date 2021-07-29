@@ -6,11 +6,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum PautaEnum {
-    //status
+    //Status
     ABERTA(1, "Aberta"),
     ENCERRADA(2, "Encerrada"),
     EM_VOTACAO(3, "Em votação"),
-    //resultado
+    //Resultado
     EMPATE(4, "Empate"),
     APROVADA(5, "Aprovada"),
     REPROVADA(6, "Reprovada"),

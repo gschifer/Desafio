@@ -9,7 +9,6 @@ import com.example.challenge.enums.VotoEnum;
 import com.example.challenge.exceptions.EmptyListException;
 import com.example.challenge.exceptions.pautaExceptions.*;
 import com.example.challenge.repository.PautaRepository;
-import com.example.challenge.repository.VotoRepository;
 import com.example.challenge.utils.Contador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -23,19 +22,18 @@ import static com.example.challenge.enums.PautaEnum.*;
 @Service
 public class PautaService {
     PautaRepository pautaRepository;
-    VotoRepository votoRepository;
+    VotoService votoService;
     AssociadoService associadoService;
 
     @Autowired
-    public PautaService(PautaRepository pautaRepository, VotoRepository votoRepository, AssociadoService associadoService) {
+    public PautaService(PautaRepository pautaRepository, VotoService votoService, AssociadoService associadoService) {
         this.pautaRepository = pautaRepository;
-        this.votoRepository = votoRepository;
+        this.votoService = votoService;
         this.associadoService = associadoService;
     }
 
     public Pauta getPauta(Long pautaId) {
-        return pautaRepository.findById(pautaId)
-                .orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
+        return pautaRepository.findById(pautaId).orElseThrow(() -> new PautaNaoEncontradaException(pautaId));
     }
 
     public void validaPauta(Long pautaId) {
@@ -50,7 +48,7 @@ public class PautaService {
 
     public Pauta reabrePauta(Long pautaId) {
         Pauta pauta = getPauta(pautaId);
-        List<Voto> votos = votoRepository.findByPautaId(pautaId);
+        List<Voto> votos = votoService.getVotosByPautaId(pautaId);
 
         if (!pauta.getResultado().equals(EMPATE.getDescricao())) {
             throw new ReaberturaInvalidaException("Você não pode reabrir uma pauta que não está empatada.");
@@ -67,7 +65,7 @@ public class PautaService {
     public void updatePauta(Long pautaId) {
         if (naoPodeProsseguir(pautaId)) return;
 
-        List<Voto> votos = votoRepository.findByPautaId(pautaId);
+        List<Voto> votos = votoService.getVotosByPautaId(pautaId);
         Pauta pauta = getPauta(pautaId);
 
         Pauta pautaAtualizada = atualizaResultadoDaPauta(pauta, votos);
@@ -77,8 +75,8 @@ public class PautaService {
     }
 
     private boolean naoPodeProsseguir(Long pautaId) {
-        long associadosContagem = associadoService.getAssociados().stream().count();
-        long votosContagem = votoRepository.findByPautaId(pautaId).stream().count();
+        long associadosContagem = associadoService.getAssociados().size();
+        long votosContagem = votoService.getVotosByPautaId(pautaId).size();
 
         return associadosContagem == votosContagem;
     }
@@ -181,10 +179,10 @@ public class PautaService {
         voto.setAssociado(associado);
         voto.setPauta(getPauta(pautaId));
 
-        return votoRepository.save(voto);
+        return votoService.saveVoto(voto);
     }
 
     private void excluiVotosDaPauta(List<Voto> votos) {
-        votos.stream().forEach(voto -> votoRepository.deleteById(voto.getId()));
+        votos.stream().forEach(voto -> votoService.deleteById(voto.getId()));
     }
 }
