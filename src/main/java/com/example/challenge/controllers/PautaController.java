@@ -5,6 +5,7 @@ import com.example.challenge.domain.request.PautaRequest;
 import com.example.challenge.openapi.controller.PautaControllerOpenApi;
 import com.example.challenge.services.PautaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/pautas")
+@RequestMapping(value = "api/v1/pautas", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PautaController implements PautaControllerOpenApi {
     private PautaService pautaService;
 

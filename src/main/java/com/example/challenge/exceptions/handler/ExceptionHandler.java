@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -125,6 +126,20 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         LocalDateTime time = LocalDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
+
+        return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleHttpMediaTypeNotSupported(HttpMediaTypeNotSupportedException ex,
+                                                                     HttpHeaders headers,
+                                                                     HttpStatus status,
+                                                                     WebRequest request) {
+        ProblemType type   = ProblemType.FORMATO_NAO_SUPORTADO;
+        LocalDateTime time = LocalDateTime.now();
+        String detail = "Requisição recusada porque o corpo de requisição está em um formato não suportado.";
+
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
 
         return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
     }

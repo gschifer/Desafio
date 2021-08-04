@@ -19,7 +19,8 @@ public enum ProblemType {
     ATRIBUTO_INVALIDO("/atributo-invalido", "Atributo inválido."),
     CPF_INVALIDO("/cpf-invalido", "CPF inválido."),
     VOTO_INVALIDO("/voto-invalido", "Voto inválido."),
-    ABERTURA_INVALIDA("abertura-invalida", "Abertura inválida.");
+    ABERTURA_INVALIDA("/abertura-invalida", "Abertura inválida."),
+    FORMATO_NAO_SUPORTADO("/formato-nao-suportado", "Formato não suportado");
 
     private String uri;
     private String title;

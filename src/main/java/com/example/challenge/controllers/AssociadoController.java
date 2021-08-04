@@ -7,6 +7,7 @@ import com.example.challenge.openapi.controller.AssociadoControllerOpenApi;
 import com.example.challenge.services.AssociadoService;
 import com.example.challenge.services.PautaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("api/v1/associados")
+@RequestMapping(value = "api/v1/associados", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AssociadoController implements AssociadoControllerOpenApi {
     private AssociadoService associadoService;
     private PautaService pautaService;
