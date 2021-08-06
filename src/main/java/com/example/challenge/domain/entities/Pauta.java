@@ -1,13 +1,12 @@
 package com.example.challenge.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder
@@ -40,8 +39,7 @@ public class Pauta implements Serializable {
     @ApiModelProperty(example = "Indefinido")
     private String resultado;
 
-    @JsonFormat(pattern = "dd/MM/YYYY HH:mm:ss")
     @CreationTimestamp
     @Column(name = "CREATED_AT")
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

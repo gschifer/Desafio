@@ -1,6 +1,5 @@
 package com.example.challenge.domain.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 
@@ -30,11 +29,9 @@ public class Voto implements Serializable {
     @Column(name = "descricao_voto", nullable = false)
     private String descricaoVoto;
 
-    @JsonIgnore
     @ManyToOne
     private Associado associado;
 
-    @JsonIgnore
     @ManyToOne
     private Pauta pauta;
 }

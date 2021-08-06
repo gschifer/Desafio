@@ -13,16 +13,16 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 public class AssociadoRequest {
 
-    @ApiModelProperty(example = "João da Silva")
+    @ApiModelProperty(example = "João da Silva", required = true)
     @NotBlank
     @Column(nullable = false)
     private String nome;
 
-    @ApiModelProperty(example = "087.765.580-27")
+    @ApiModelProperty(example = "087.765.580-27", required = true)
     @CPF
     private String cpf;
 
-    @ApiModelProperty(example = "joao@gmail.com")
+    @ApiModelProperty(example = "joao@gmail.com", required = true)
     @NotBlank
     @Email
     @Column(nullable = false)

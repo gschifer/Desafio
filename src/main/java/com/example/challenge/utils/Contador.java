@@ -1,6 +1,6 @@
 package com.example.challenge.utils;
 
-import com.example.challenge.services.PautaService;
+import com.example.challenge.domain.services.PautaService;
 
 import java.util.Timer;
 import java.util.TimerTask;
