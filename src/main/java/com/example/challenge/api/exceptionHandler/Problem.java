@@ -6,7 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -31,7 +31,7 @@ public class Problem {
     private String detail;
 
     @ApiModelProperty(example = "2021-12-01T18:09:02.70844Z", position = 5)
-    private LocalDateTime timeStamp;
+    private OffsetDateTime timeStamp;
 
     //Optional fields
     @ApiModelProperty(example = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.",
