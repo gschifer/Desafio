@@ -1,9 +1,11 @@
 package com.example.challenge.api.controllers;
 
+import com.example.challenge.api.assembler.AssociadoDtoAssembler;
+import com.example.challenge.api.dto.AssociadoDTO;
 import com.example.challenge.api.openapi.controller.AssociadoControllerOpenApi;
+import com.example.challenge.api.request.AssociadoRequest;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
-import com.example.challenge.domain.request.AssociadoRequest;
 import com.example.challenge.domain.services.AssociadoService;
 import com.example.challenge.domain.services.PautaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,41 +23,45 @@ import java.util.List;
 @RestController
 @RequestMapping(value = "api/v1/associados", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AssociadoController implements AssociadoControllerOpenApi {
+
     private AssociadoService associadoService;
     private PautaService pautaService;
+    private AssociadoDtoAssembler associadoDtoAssembler;
 
     @Autowired
-    public AssociadoController(AssociadoService associadoService, PautaService pautaService) {
+    public AssociadoController(AssociadoService associadoService, PautaService pautaService, AssociadoDtoAssembler associadoDtoAssembler) {
         this.associadoService = associadoService;
         this.pautaService = pautaService;
+        this.associadoDtoAssembler = associadoDtoAssembler;
     }
 
     @GetMapping
-    public ResponseEntity<List<Associado>> getAssociados() {
-        List<Associado> associados = associadoService.getAssociados();
+    public ResponseEntity<List<AssociadoDTO>> getAssociados() {
+        List<AssociadoDTO> associados = associadoDtoAssembler.toCollectionOfDto(associadoService.getAssociados());
 
         return ResponseEntity.ok(associados);
     }
 
     @PostMapping
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Associado> salvaAssociado(@RequestBody @Valid AssociadoRequest associadoRequest) {
-        Associado associado = associadoService.saveAssociado(associadoRequest);
+    public ResponseEntity<AssociadoDTO> salvaAssociado(@RequestBody @Valid AssociadoRequest associadoRequest) {
+        AssociadoDTO associado = associadoDtoAssembler.associadoToDto(associadoService.saveAssociado(associadoRequest));
         URI location = getUri(associado.getId());
 
         return ResponseEntity.created(location).body(associado);
     }
 
     @GetMapping("/{associadoId}")
-    public ResponseEntity<Associado> getAssociado(@PathVariable Long associadoId) {
-        Associado associado = associadoService.getAssociado(associadoId);
-
+    public ResponseEntity<AssociadoDTO> getAssociado(@PathVariable Long associadoId) {
+        AssociadoDTO associado = associadoDtoAssembler.associadoToDto(associadoService.getAssociado(associadoId));
         return ResponseEntity.ok(associado);
     }
 
     @PostMapping("/{associadoId}/votar/{pautaId}")
     @Secured({"ROLE_ADMIN"})
-    public Voto votaEmUmaPauta(@RequestBody Voto voto, @PathVariable Long associadoId, @PathVariable Long pautaId) {
+    public Voto votaEmUmaPauta(@RequestBody Voto voto,
+                               @PathVariable Long associadoId,
+                               @PathVariable Long pautaId) {
         return pautaService.votaNaPauta(voto, associadoId, pautaId);
     }
 
@@ -69,10 +75,13 @@ public class AssociadoController implements AssociadoControllerOpenApi {
 
     @PutMapping("/{associadoId}")
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Associado> updateAssociado(@PathVariable Long associadoId,
-                                                     @RequestBody Associado associadoRequest) {
+    public ResponseEntity<AssociadoDTO> updateAssociado(@PathVariable Long associadoId,
+                                                        @RequestBody Associado associadoToUpdate) {
 
-        return ResponseEntity.ok(associadoService.updateAssociado(associadoId, associadoRequest));
+        AssociadoDTO associado = associadoDtoAssembler.associadoToDto
+                (associadoService.updateAssociado(associadoId, associadoToUpdate));
+
+        return ResponseEntity.ok(associado);
     }
 
     private URI getUri(Long id) {

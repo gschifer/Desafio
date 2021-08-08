@@ -1,14 +1,14 @@
 package com.example.challenge.domain.services;
 
+import com.example.challenge.api.mapper.AssociadoMapper;
+import com.example.challenge.api.request.AssociadoRequest;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.domain.exceptions.EmptyListException;
 import com.example.challenge.domain.exceptions.associadoExceptions.AssociadoNaoEncontradoException;
 import com.example.challenge.domain.exceptions.votoExceptions.VotoInvalidoException;
-import com.example.challenge.domain.mapper.AssociadoMapper;
 import com.example.challenge.domain.repository.AssociadoRepository;
 import com.example.challenge.domain.repository.VotoRepository;
-import com.example.challenge.domain.request.AssociadoRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -22,11 +22,13 @@ import java.util.Optional;
 public class AssociadoService {
     private AssociadoRepository associadoRepository;
     private VotoRepository votoRepository;
+    private AssociadoMapper associadoMapper;
 
     @Autowired
-    public AssociadoService(AssociadoRepository associadoRepository, VotoRepository votoRepository) {
+    public AssociadoService(AssociadoRepository associadoRepository, VotoRepository votoRepository, AssociadoMapper associadoMapper) {
         this.associadoRepository = associadoRepository;
         this.votoRepository = votoRepository;
+        this.associadoMapper = associadoMapper;
     }
 
     public Associado getAssociado(Long associadoId) {
@@ -36,18 +38,22 @@ public class AssociadoService {
     public void validaAssociado(Long associadoId, Long pautaId) {
         Optional<Voto> voto = votoRepository.findByAssociadoIdAndPautaId(associadoId, pautaId);
 
-        if (voto.isPresent()) throw new VotoInvalidoException("Associado já votou nesta pauta.");
+        if (voto.isPresent()) {
+            throw new VotoInvalidoException("Associado já votou nesta pauta.");
+        }
     }
 
     @Transactional
     public Associado saveAssociado(AssociadoRequest request) {
-        return associadoRepository.save(AssociadoMapper.map(request));
+        return associadoRepository.save(associadoMapper.map(request));
     }
 
     public List<Associado> getAssociados() {
         List<Associado> associados = associadoRepository.findAll();
 
-        if (associados.isEmpty()) throw new EmptyListException("Não há associados cadastrados no momento.");
+        if (associados.isEmpty()) {
+            throw new EmptyListException("Não há associados cadastrados no momento.");
+        }
 
         return associados;
     }

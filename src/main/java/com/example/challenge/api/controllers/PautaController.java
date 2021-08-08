@@ -1,8 +1,9 @@
 package com.example.challenge.api.controllers;
 
+import com.example.challenge.api.assembler.PautaDtoAssembler;
+import com.example.challenge.api.dto.PautaDTO;
 import com.example.challenge.api.openapi.controller.PautaControllerOpenApi;
-import com.example.challenge.domain.entities.Pauta;
-import com.example.challenge.domain.request.PautaRequest;
+import com.example.challenge.api.request.PautaRequest;
 import com.example.challenge.domain.services.PautaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,22 +19,24 @@ import java.util.List;
 @RequestMapping(value = "api/v1/pautas", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PautaController implements PautaControllerOpenApi {
     private PautaService pautaService;
+    private PautaDtoAssembler pautaDtoAssembler;
 
     @Autowired
-    public PautaController(PautaService pautaService) {
+    public PautaController(PautaService pautaService, PautaDtoAssembler pautaDtoAssembler) {
         this.pautaService = pautaService;
+        this.pautaDtoAssembler = pautaDtoAssembler;
     }
 
     @GetMapping
-    public ResponseEntity<List<Pauta>> getPautas() {
-        List<Pauta> pautas = pautaService.getPautas();
+    public ResponseEntity<List<PautaDTO>> getPautas() {
+        List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautas());
 
         return ResponseEntity.ok(pautas);
     }
 
     @GetMapping("/{pautaId}")
-    public ResponseEntity<Pauta> getPauta(@PathVariable Long pautaId) {
-        Pauta pauta = pautaService.getPauta(pautaId);
+    public ResponseEntity<PautaDTO> getPauta(@PathVariable Long pautaId) {
+        PautaDTO pauta = pautaDtoAssembler.pautaToDto(pautaService.getPauta(pautaId));
 
         return ResponseEntity.ok(pauta);
     }
@@ -47,30 +50,30 @@ public class PautaController implements PautaControllerOpenApi {
     }
 
     @GetMapping("/empates")
-    public ResponseEntity<List<Pauta>> getPautasEmpatadas() {
-        List<Pauta> pautas = pautaService.getPautasEmpatadas();
+    public ResponseEntity<List<PautaDTO>> getPautasEmpatadas() {
+        List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautasEmpatadas());
 
         return ResponseEntity.ok(pautas);
     }
 
     @GetMapping("/aprovadas")
-    public ResponseEntity<List<Pauta>> getPautasAprovadas() {
-        List<Pauta> pautas = pautaService.getPautasAprovadas();
+    public ResponseEntity<List<PautaDTO>> getPautasAprovadas() {
+        List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautasAprovadas());
 
         return ResponseEntity.ok(pautas);
     }
 
     @GetMapping("/reprovadas")
-    public ResponseEntity<List<Pauta>> getPautasReprovadas() {
-        List<Pauta> pautas = pautaService.getPautasReprovadas();
+    public ResponseEntity<List<PautaDTO>> getPautasReprovadas() {
+        List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautasReprovadas());
 
         return ResponseEntity.ok(pautas);
     }
 
     @PostMapping("/{pautaId}/reabrirPauta")
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Pauta> reabrePauta(@PathVariable Long pautaId) {
-        Pauta pauta = pautaService.reabrePauta(pautaId);
+    public ResponseEntity<PautaDTO> reabrePauta(@PathVariable Long pautaId) {
+        PautaDTO pauta = pautaDtoAssembler.pautaToDto(pautaService.reabrePauta(pautaId));
 
         URI location = this.getUri(pautaId);
 
@@ -86,8 +89,8 @@ public class PautaController implements PautaControllerOpenApi {
 
     @PostMapping
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity<Pauta> salvaPauta(@RequestBody PautaRequest pautaRequest) {
-        Pauta pauta = pautaService.savePauta(pautaRequest);
+    public ResponseEntity<PautaDTO> salvaPauta(@RequestBody PautaRequest pautaRequest) {
+        PautaDTO pauta = pautaDtoAssembler.pautaToDto(pautaService.savePauta(pautaRequest));
         URI location = getUri(pauta.getId());
 
         return ResponseEntity.created(location).body(pauta);

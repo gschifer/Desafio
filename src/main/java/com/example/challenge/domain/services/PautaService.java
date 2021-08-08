@@ -1,14 +1,14 @@
 package com.example.challenge.domain.services;
 
 import com.example.challenge.api.enums.VotoEnum;
+import com.example.challenge.api.mapper.PautaMapper;
+import com.example.challenge.api.request.PautaRequest;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
 import com.example.challenge.domain.exceptions.EmptyListException;
 import com.example.challenge.domain.exceptions.pautaExceptions.*;
-import com.example.challenge.domain.mapper.PautaMapper;
 import com.example.challenge.domain.repository.PautaRepository;
-import com.example.challenge.domain.request.PautaRequest;
 import com.example.challenge.utils.Contador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -24,12 +24,14 @@ public class PautaService {
     PautaRepository pautaRepository;
     VotoService votoService;
     AssociadoService associadoService;
+    PautaMapper pautaMapper;
 
     @Autowired
-    public PautaService(PautaRepository pautaRepository, VotoService votoService, AssociadoService associadoService) {
+    public PautaService(PautaRepository pautaRepository, VotoService votoService, AssociadoService associadoService, PautaMapper pautaMapper) {
         this.pautaRepository = pautaRepository;
         this.votoService = votoService;
         this.associadoService = associadoService;
+        this.pautaMapper = pautaMapper;
     }
 
     public Pauta getPauta(Long pautaId) {
@@ -41,8 +43,13 @@ public class PautaService {
         String pautaStatus = pauta.getStatus();
         String pautaResultado = pauta.getResultado();
 
-        if (pautaStatus.equals(ABERTA.getDescricao())) throw new PautaInvalidaException();
-        if (pautaResultado.equals(ENCERRADA.getDescricao())) throw new PautaEncerradaException();
+        if (pautaStatus.equals(ABERTA.getDescricao())) {
+            throw new PautaInvalidaException();
+        }
+
+        if (pautaResultado.equals(ENCERRADA.getDescricao())) {
+            throw new PautaEncerradaException();
+        }
     }
 
 
@@ -103,7 +110,7 @@ public class PautaService {
 
     @Transactional
     public Pauta savePauta(PautaRequest pauta) {
-        return pautaRepository.save(PautaMapper.map(pauta));
+        return pautaRepository.save(pautaMapper.map(pauta));
     }
 
     public List<Pauta> getPautas() {
@@ -119,7 +126,9 @@ public class PautaService {
     public List<Pauta> getPautasEmpatadas() {
         List<Pauta> pautasEmpatadas = pautaRepository.findByResultado(EMPATE.getDescricao());
 
-        if (pautasEmpatadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta empatada no momento.");
+        if (pautasEmpatadas.isEmpty()) {
+            throw new EmptyListException("Não há nenhuma pauta empatada no momento.");
+        }
 
         return pautasEmpatadas;
     }
@@ -127,7 +136,9 @@ public class PautaService {
     public List<Pauta> getPautasAprovadas() {
         List<Pauta> pautasAprovadas = pautaRepository.findByResultado(APROVADA.getDescricao());
 
-        if (pautasAprovadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta aprovada no momento.");
+        if (pautasAprovadas.isEmpty()) {
+            throw new EmptyListException("Não há nenhuma pauta aprovada no momento.");
+        }
 
         return pautasAprovadas;
     }
@@ -135,7 +146,9 @@ public class PautaService {
     public List<Pauta> getPautasReprovadas() {
         List<Pauta> pautasReprovadas = pautaRepository.findByResultado(REPROVADA.getDescricao());
 
-        if (pautasReprovadas.isEmpty()) throw new EmptyListException("Não há nenhuma pauta reprovada no momento.");
+        if (pautasReprovadas.isEmpty()) {
+            throw new EmptyListException("Não há nenhuma pauta reprovada no momento.");
+        }
 
         return pautasReprovadas;
     }

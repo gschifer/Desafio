@@ -1,4 +1,4 @@
-package com.example.challenge.domain.request;
+package com.example.challenge.api.request;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -19,7 +19,9 @@ public class AssociadoRequest {
     private String nome;
 
     @ApiModelProperty(example = "087.765.580-27", required = true)
+    @NotBlank
     @CPF
+    @Column(nullable = false)
     private String cpf;
 
     @ApiModelProperty(example = "joao@gmail.com", required = true)

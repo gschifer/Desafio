@@ -9,6 +9,9 @@ import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import static com.example.challenge.api.enums.PautaEnum.ABERTA;
+import static com.example.challenge.api.enums.PautaEnum.INDEFINIDO;
+
 @Builder
 @Entity
 @Data
@@ -34,10 +37,10 @@ public class Pauta implements Serializable {
     private List<Voto> votos;
 
     @ApiModelProperty(example = "Aberta")
-    private String status;
+    private String status = ABERTA.getDescricao();
 
     @ApiModelProperty(example = "Indefinido")
-    private String resultado;
+    private String resultado = INDEFINIDO.getDescricao();
 
     @CreationTimestamp
     @Column(name = "CREATED_AT")

@@ -189,7 +189,6 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         String detail = String.format("A propriedade '%s' fornecida no corpo de requisição não existe.", propriedadeInvalida);
 
          Problem problem = createProblemBuilder(status, ProblemType.PROPRIEDADE_NAO_RECONHECIDA, detail, time)
-                                                .userMessage(MSG_ERRO_USUARIO)
                                                 .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
