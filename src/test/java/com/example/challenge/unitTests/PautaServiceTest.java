@@ -1,17 +1,20 @@
 package com.example.challenge.unitTests;
 
+import com.example.challenge.api.request.PautaRequest;
+import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
-import com.example.challenge.domain.request.PautaRequest;
-import com.example.challenge.exceptions.EmptyListException;
-import com.example.challenge.exceptions.pautaExceptions.PautaInvalidaException;
-import com.example.challenge.exceptions.pautaExceptions.PautaNaoEncontradaException;
-import com.example.challenge.exceptions.pautaExceptions.ReaberturaInvalidaException;
+import com.example.challenge.domain.exceptions.EmptyListException;
+import com.example.challenge.domain.exceptions.pautaExceptions.PautaInvalidaException;
+import com.example.challenge.domain.exceptions.pautaExceptions.PautaNaoEncontradaException;
+import com.example.challenge.domain.exceptions.pautaExceptions.ReaberturaInvalidaException;
+import com.example.challenge.domain.repository.AssociadoRepository;
+import com.example.challenge.domain.repository.PautaRepository;
+import com.example.challenge.domain.repository.VotoRepository;
+import com.example.challenge.domain.services.PautaService;
+import com.example.challenge.prototype.AssociadoPrototype;
 import com.example.challenge.prototype.PautaPrototype;
 import com.example.challenge.prototype.VotoPrototype;
-import com.example.challenge.repository.PautaRepository;
-import com.example.challenge.repository.VotoRepository;
-import com.example.challenge.services.PautaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.challenge.enums.PautaEnum.*;
-import static com.example.challenge.enums.VotoEnum.NAO;
+import static com.example.challenge.api.enums.PautaEnum.EMPATE;
+import static com.example.challenge.api.enums.PautaEnum.EM_VOTACAO;
+import static com.example.challenge.api.enums.VotoEnum.NAO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -39,6 +43,9 @@ public class PautaServiceTest {
 
     @Mock
     private VotoRepository votoRepository;
+
+    @Mock
+    private AssociadoRepository associadoRepository;
 
     @InjectMocks
     @Spy
@@ -109,7 +116,7 @@ public class PautaServiceTest {
         Pauta pautaAserReaberta = pauta;
 
         when(pautaRepository.findById(anyLong())).thenReturn(Optional.ofNullable(pauta));
-        when(votoRepository.findByPautaId(anyLong())).thenReturn(votos);
+        when(votoRepository.findByPautaId(anyLong())).thenReturn(Optional.of(votos));
         when(pautaRepository.save(any())).thenReturn(pautaAserReaberta);
 
         Pauta pautaReaberta = pautaService.reabrePauta(1L);
@@ -146,7 +153,7 @@ public class PautaServiceTest {
     public void deveLancarEmptyListException() {
         when(pautaRepository.findAll()).thenReturn(new ArrayList<>());
 
-       Executable executable = () -> pautaService.getPautas();
+        Executable executable = () -> pautaService.getPautas();
 
         assertThrows(EmptyListException.class, executable);
         verify(pautaService).getPautas();
@@ -164,11 +171,7 @@ public class PautaServiceTest {
 
     @Test
     public void deveBuscarPautasEmpatadas() {
-        List<Pauta> pautas = new ArrayList<>();
-        Pauta pauta2 = Pauta.builder().id(2L).titulo("Pauta 2").resultado(EMPATE.getDescricao()).build();
-        pauta.setResultado(EMPATE.getDescricao());
-        pautas.add(pauta);
-        pautas.add(pauta2);
+        List<Pauta> pautas = populaPautas();
 
         when(pautaRepository.findByResultado(anyString())).thenReturn(pautas);
 
@@ -178,13 +181,19 @@ public class PautaServiceTest {
         verify(pautaService).getPautasEmpatadas();
     }
 
-    @Test
-    public void deveBuscarPautasReprovadas() {
+    private List<Pauta> populaPautas() {
         List<Pauta> pautas = new ArrayList<>();
-        Pauta pauta2 = Pauta.builder().id(2L).titulo("Pauta 2").resultado(REPROVADA.getDescricao()).build();
-        pauta.setResultado(REPROVADA.getDescricao());
+        Pauta pauta2 = Pauta.builder().id(2L).titulo("Pauta 2").resultado(EMPATE.getDescricao()).build();
+        pauta.setResultado(EMPATE.getDescricao());
         pautas.add(pauta);
         pautas.add(pauta2);
+
+        return pautas;
+    }
+
+    @Test
+    public void deveBuscarPautasReprovadas() {
+        List<Pauta> pautas = populaPautas();
 
         when(pautaRepository.findByResultado(anyString())).thenReturn(pautas);
 
@@ -196,11 +205,7 @@ public class PautaServiceTest {
 
     @Test
     public void deveBuscarPautasAprovadas() {
-        List<Pauta> pautas = new ArrayList<>();
-        Pauta pauta2 = Pauta.builder().id(2L).titulo("Pauta 2").resultado(APROVADA.getDescricao()).build();
-        pauta.setResultado(APROVADA.getDescricao());
-        pautas.add(pauta);
-        pautas.add(pauta2);
+        List<Pauta> pautas = populaPautas();
 
         when(pautaRepository.findByResultado(anyString())).thenReturn(pautas);
 
@@ -227,6 +232,38 @@ public class PautaServiceTest {
         pautaService.deletePauta(1L);
 
         verify(pautaService).deletePauta(1L);
+    }
+
+    @Test
+    public void deveAtualizarPauta() {
+        pauta.setStatus(EM_VOTACAO.getDescricao());
+        pauta.setVotos(populaVotos());
+        Pauta pautaEmVotacao = pauta;
+
+        when(pautaRepository.findById(anyLong())).thenReturn(Optional.ofNullable(PautaPrototype.anPauta()));
+        when(pautaRepository.save(any())).thenReturn(pautaEmVotacao);
+        when(votoRepository.findByPautaId(anyLong())).thenReturn(Optional.of(populaVotos()));
+        when(associadoRepository.findAll()).thenReturn(populaAssociados());
+
+        pautaService.updatePauta(1L);
+    }
+
+    private List<Voto> populaVotos() {
+        Voto voto2 = Voto.builder().id(2L).descricaoVoto(NAO.getDescricao()).build();
+        List<Voto> votos = new ArrayList<>();
+        votos.add(voto);
+        votos.add(voto2);
+
+        return votos;
+    }
+
+    private List<Associado> populaAssociados() {
+        Associado associado2 = Associado.builder().id(1L).nome("Leonardo").email("leo@gmail.com").build();
+        ArrayList<Associado> associados = new ArrayList<Associado>();
+        associados.add(AssociadoPrototype.anAssociado());
+        associados.add(associado2);
+
+        return associados;
     }
 
 }
