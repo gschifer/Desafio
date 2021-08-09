@@ -2,7 +2,9 @@ package com.example.challenge.domain.services;
 
 import com.example.challenge.api.enums.VotoEnum;
 import com.example.challenge.api.mapper.PautaMapper;
+import com.example.challenge.api.mapper.VotoMapper;
 import com.example.challenge.api.request.PautaRequest;
+import com.example.challenge.api.request.VotoRequest;
 import com.example.challenge.domain.entities.Associado;
 import com.example.challenge.domain.entities.Pauta;
 import com.example.challenge.domain.entities.Voto;
@@ -21,17 +23,20 @@ import static com.example.challenge.api.enums.PautaEnum.*;
 
 @Service
 public class PautaService {
-    PautaRepository pautaRepository;
-    VotoService votoService;
-    AssociadoService associadoService;
-    PautaMapper pautaMapper;
+    private PautaRepository pautaRepository;
+    private VotoService votoService;
+    private AssociadoService associadoService;
+    private PautaMapper pautaMapper;
+    private VotoMapper votoMapper;
 
     @Autowired
-    public PautaService(PautaRepository pautaRepository, VotoService votoService, AssociadoService associadoService, PautaMapper pautaMapper) {
+    public PautaService(PautaRepository pautaRepository, VotoService votoService, AssociadoService associadoService,
+                        PautaMapper pautaMapper, VotoMapper votoMapper) {
         this.pautaRepository = pautaRepository;
         this.votoService = votoService;
         this.associadoService = associadoService;
         this.pautaMapper = pautaMapper;
+        this.votoMapper = votoMapper;
     }
 
     public Pauta getPauta(Long pautaId) {
@@ -188,11 +193,13 @@ public class PautaService {
     }
 
     @Transactional
-    public Voto votaNaPauta(Voto voto, Long associadoId, Long pautaId) {
+    public Voto votaNaPauta(VotoRequest votoRequest, Long associadoId, Long pautaId) {
         associadoService.validaAssociado(associadoId, pautaId);
         validaPauta(pautaId);
 
+        Voto voto = votoMapper.map(votoRequest);
         Associado associado = associadoService.getAssociado(associadoId);
+
         voto.setAssociado(associado);
         voto.setPauta(getPauta(pautaId));
 
@@ -200,6 +207,6 @@ public class PautaService {
     }
 
     private void excluiVotosDaPauta(List<Voto> votos) {
-        votos.stream().forEach(voto -> votoService.deleteById(voto.getId()));
+        votos.forEach(voto -> votoService.deleteById(voto.getId()));
     }
 }

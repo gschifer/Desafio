@@ -2,9 +2,11 @@ package com.example.challenge.api.controllers;
 
 import com.example.challenge.api.assembler.PautaDtoAssembler;
 import com.example.challenge.api.dto.PautaDTO;
+import com.example.challenge.api.model.view.PautaView;
 import com.example.challenge.api.openapi.controller.PautaControllerOpenApi;
 import com.example.challenge.api.request.PautaRequest;
 import com.example.challenge.domain.services.PautaService;
+import com.fasterxml.jackson.annotation.JsonView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ public class PautaController implements PautaControllerOpenApi {
         this.pautaDtoAssembler = pautaDtoAssembler;
     }
 
+    @JsonView(PautaView.Brief.class)
     @GetMapping
     public ResponseEntity<List<PautaDTO>> getPautas() {
         List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautas());
@@ -34,6 +37,7 @@ public class PautaController implements PautaControllerOpenApi {
         return ResponseEntity.ok(pautas);
     }
 
+    @JsonView(PautaView.Brief.class)
     @GetMapping("/{pautaId}")
     public ResponseEntity<PautaDTO> getPauta(@PathVariable Long pautaId) {
         PautaDTO pauta = pautaDtoAssembler.pautaToDto(pautaService.getPauta(pautaId));
@@ -43,12 +47,13 @@ public class PautaController implements PautaControllerOpenApi {
 
     @DeleteMapping("/{pautaId}")
     @Secured({"ROLE_ADMIN"})
-    public ResponseEntity deletePauta(@PathVariable Long pautaId) {
+    public ResponseEntity<?> deletePauta(@PathVariable Long pautaId) {
         pautaService.deletePauta(pautaId);
 
         return ResponseEntity.notFound().build();
     }
 
+    @JsonView(PautaView.Brief.class)
     @GetMapping("/empates")
     public ResponseEntity<List<PautaDTO>> getPautasEmpatadas() {
         List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautasEmpatadas());
@@ -56,6 +61,7 @@ public class PautaController implements PautaControllerOpenApi {
         return ResponseEntity.ok(pautas);
     }
 
+    @JsonView(PautaView.Brief.class)
     @GetMapping("/aprovadas")
     public ResponseEntity<List<PautaDTO>> getPautasAprovadas() {
         List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautasAprovadas());
@@ -63,6 +69,7 @@ public class PautaController implements PautaControllerOpenApi {
         return ResponseEntity.ok(pautas);
     }
 
+    @JsonView(PautaView.Brief.class)
     @GetMapping("/reprovadas")
     public ResponseEntity<List<PautaDTO>> getPautasReprovadas() {
         List<PautaDTO> pautas = pautaDtoAssembler.toCollectionOfDto(pautaService.getPautasReprovadas());
@@ -70,7 +77,8 @@ public class PautaController implements PautaControllerOpenApi {
         return ResponseEntity.ok(pautas);
     }
 
-    @PostMapping("/{pautaId}/reabrirPauta")
+    @JsonView(PautaView.Brief.class)
+    @PostMapping("/{pautaId}/votacao/reabertura")
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<PautaDTO> reabrePauta(@PathVariable Long pautaId) {
         PautaDTO pauta = pautaDtoAssembler.pautaToDto(pautaService.reabrePauta(pautaId));
@@ -80,13 +88,14 @@ public class PautaController implements PautaControllerOpenApi {
         return ResponseEntity.created(location).body(pauta);
     }
 
-    @PostMapping("/{pautaId}/abrirVotacao")
+    @PostMapping("/{pautaId}/votacao/abertura")
     @Secured({"ROLE_ADMIN"})
     public void colocaPautaEmVotacao(@PathVariable Long pautaId,
                                      @RequestParam(name = "tempo", required = false) Integer tempo) {
         pautaService.colocaPautaEmVotacao(pautaId, tempo);
     }
 
+    @JsonView(PautaView.Brief.class)
     @PostMapping
     @Secured({"ROLE_ADMIN"})
     public ResponseEntity<PautaDTO> salvaPauta(@RequestBody PautaRequest pautaRequest) {

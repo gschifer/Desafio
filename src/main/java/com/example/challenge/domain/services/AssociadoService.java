@@ -1,5 +1,6 @@
 package com.example.challenge.domain.services;
 
+import com.example.challenge.api.assembler.AssociadoDtoAssembler;
 import com.example.challenge.api.mapper.AssociadoMapper;
 import com.example.challenge.api.request.AssociadoRequest;
 import com.example.challenge.domain.entities.Associado;
@@ -9,7 +10,6 @@ import com.example.challenge.domain.exceptions.associadoExceptions.AssociadoNaoE
 import com.example.challenge.domain.exceptions.votoExceptions.VotoInvalidoException;
 import com.example.challenge.domain.repository.AssociadoRepository;
 import com.example.challenge.domain.repository.VotoRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -23,12 +23,14 @@ public class AssociadoService {
     private AssociadoRepository associadoRepository;
     private VotoRepository votoRepository;
     private AssociadoMapper associadoMapper;
+    private AssociadoDtoAssembler associadoDtoAssembler;
 
     @Autowired
-    public AssociadoService(AssociadoRepository associadoRepository, VotoRepository votoRepository, AssociadoMapper associadoMapper) {
+    public AssociadoService(AssociadoRepository associadoRepository, VotoRepository votoRepository, AssociadoMapper associadoMapper, AssociadoDtoAssembler associadoDtoAssembler) {
         this.associadoRepository = associadoRepository;
         this.votoRepository = votoRepository;
         this.associadoMapper = associadoMapper;
+        this.associadoDtoAssembler = associadoDtoAssembler;
     }
 
     public Associado getAssociado(Long associadoId) {
@@ -68,14 +70,11 @@ public class AssociadoService {
     }
 
     @Transactional
-    public Associado updateAssociado(Long associadoId, Associado associadoRequest) {
-        associadoRequest.setId(associadoId);
-        Associado associado = getAssociado(associadoId);
+    public Associado updateAssociado(Long associadoId, AssociadoRequest associadoRequest) {
+        Associado associadoAtual = getAssociado(associadoId);
+        associadoDtoAssembler.copyProperties(associadoRequest, associadoAtual);
 
-        BeanUtils.copyProperties(associadoRequest, associado, "id", "votos", "createdAt ");
-
-        return associadoRepository.save(associadoRequest);
-
+        return associadoRepository.save(associadoAtual);
     }
 //
 //    public void validaCpf(String cpf) {

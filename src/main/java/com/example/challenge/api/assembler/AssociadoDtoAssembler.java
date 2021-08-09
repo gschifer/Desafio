@@ -1,6 +1,7 @@
 package com.example.challenge.api.assembler;
 
 import com.example.challenge.api.dto.AssociadoDTO;
+import com.example.challenge.api.request.AssociadoRequest;
 import com.example.challenge.domain.entities.Associado;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,4 +22,9 @@ public class AssociadoDtoAssembler {
     public List<AssociadoDTO> toCollectionOfDto(List<Associado> associados) {
         return associados.stream().map(this::associadoToDto).collect(Collectors.toList());
     }
+
+    public void copyProperties(AssociadoRequest associadoRequest, Associado associadoAtual) {
+        modelMapper.map(associadoRequest, associadoAtual);
+    }
+
 }

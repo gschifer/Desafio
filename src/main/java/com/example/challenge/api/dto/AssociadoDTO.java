@@ -1,6 +1,9 @@
 package com.example.challenge.api.dto;
 
-import com.example.challenge.domain.entities.Voto;
+import com.example.challenge.api.model.view.AssociadoView;
+import com.example.challenge.api.model.view.PautaView;
+import com.example.challenge.api.model.view.VotoView;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,11 +14,24 @@ import java.util.List;
 @Setter
 public class AssociadoDTO {
 
+    @JsonView({PautaView.Brief.class, AssociadoView.Brief.class, AssociadoView.Brief.class, VotoView.Brief.class})
     private Long id;
+
+    @JsonView({PautaView.Brief.class, AssociadoView.Brief.class, AssociadoView.Brief.class, VotoView.Brief.class})
     private String nome;
+
+    @JsonView({PautaView.Brief.class, AssociadoView.Brief.class, AssociadoView.Brief.class, VotoView.Brief.class})
     private String email;
+
+    @JsonView({PautaView.Brief.class, AssociadoView.Brief.class})
     private String cpf;
-    private List<Voto> votos;
+
+    @JsonView(AssociadoView.Brief.class)
+    private List<VotoDTO> votos;
+
+    @JsonView(AssociadoView.Brief.class)
     private OffsetDateTime createdAt;
+
+    @JsonView(AssociadoView.Brief.class)
     private OffsetDateTime updatedAt;
 }
