@@ -61,26 +61,26 @@ public class SwaggerConfig implements WebMvcConfigurer {
     }
 
     private List<ResponseMessage> globalPostPutResponseMessage() {
-         return Arrays.asList(
+        return Arrays.asList(
                 new ResponseMessageBuilder()
                         .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
                         .message("Erro interno do servidor.")
                         .build(),
-                 new ResponseMessageBuilder()
-                         .code(HttpStatus.NOT_ACCEPTABLE.value())
-                         .message("A resposta requisitada pelo cliente está em um formato não suportado pelo servidor.")
-                         .build(),
-                 new ResponseMessageBuilder()
-                         .code(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
-                         .message("Requisição recusada porque o corpo de requisição está em um formato não suportado.")
-                         .responseModel(new ModelRef("Problema"))
-                         .build(),
-                 new ResponseMessageBuilder()
-                         .code(HttpStatus.METHOD_NOT_ALLOWED.value())
-                         .message("Método não suportado.")
-                         .responseModel(new ModelRef("Problema"))
-                         .build()
-         );
+                new ResponseMessageBuilder()
+                        .code(HttpStatus.NOT_ACCEPTABLE.value())
+                        .message("A resposta requisitada pelo cliente está em um formato não suportado pelo servidor.")
+                        .build(),
+                new ResponseMessageBuilder()
+                        .code(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value())
+                        .message("Requisição recusada porque o corpo de requisição está em um formato não suportado.")
+                        .responseModel(new ModelRef("Problema"))
+                        .build(),
+                new ResponseMessageBuilder()
+                        .code(HttpStatus.METHOD_NOT_ALLOWED.value())
+                        .message("Método não suportado.")
+                        .responseModel(new ModelRef("Problema"))
+                        .build()
+        );
     }
 
     private List<ResponseMessage> globalGetResponseMessage() {

@@ -26,7 +26,7 @@ public class VotoService {
     }
 
     public List<Voto> getVotosByPautaId(Long pautaId) {
-       return votoRepository.findByPautaId(pautaId).orElseThrow(PautaSemVotosException::new);
+        return votoRepository.findByPautaId(pautaId).orElseThrow(PautaSemVotosException::new);
     }
 
     @Transactional

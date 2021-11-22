@@ -2,6 +2,7 @@ package com.example.challenge.domain.entities;
 
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

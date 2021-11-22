@@ -12,6 +12,5 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class PautaRequest {
     @NotBlank
-    @Column(nullable = false)
     private String titulo;
 }

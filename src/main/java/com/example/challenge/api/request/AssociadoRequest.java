@@ -15,18 +15,15 @@ public class AssociadoRequest {
 
     @ApiModelProperty(example = "João da Silva", required = true)
     @NotBlank
-    @Column(nullable = false)
     private String nome;
 
     @ApiModelProperty(example = "087.765.580-27", required = true)
     @NotBlank
     @CPF
-    @Column(nullable = false)
     private String cpf;
 
     @ApiModelProperty(example = "joao@gmail.com", required = true)
     @NotBlank
     @Email
-    @Column(nullable = false)
     private String email;
 }

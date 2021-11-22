@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
     public static final String MSG_ERRO_USUARIO = "Ocorreu um erro interno inesperado no sistema. Tente novamente, " +
-                                         "se o problema persistir, entre em contato com o administrador do sistema.";
+            "se o problema persistir, entre em contato com o administrador do sistema.";
 
     private MessageSource messageSource;
 
@@ -67,13 +67,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                    HttpStatus status,
                                                                    WebRequest request) {
 
-        ProblemType type    = ProblemType.RECURSO_NAO_ENCONTRADO;
-        OffsetDateTime time  = OffsetDateTime.now();
-        String url          = ex.getRequestURL();
-        String detail       = String.format("O recurso '%s' que você tentou acessar, não existe.", url);
+        ProblemType type = ProblemType.RECURSO_NAO_ENCONTRADO;
+        OffsetDateTime time = OffsetDateTime.now();
+        String url = ex.getRequestURL();
+        String detail = String.format("O recurso '%s' que você tentou acessar, não existe.", url);
 
         Problem problem = createProblemBuilder(status, type, detail, time).
-                            userMessage(MSG_ERRO_USUARIO).build();
+                userMessage(MSG_ERRO_USUARIO).build();
 
 
         return handleExceptionInternal(ex, problem, headers, status, request);
@@ -89,14 +89,10 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (rootCause instanceof InvalidFormatException) {
             return handleInvalidFormatException((InvalidFormatException) rootCause, headers, status, request);
-        }
-
-        else if (rootCause instanceof UnrecognizedPropertyException) {
+        } else if (rootCause instanceof UnrecognizedPropertyException) {
             return handleUnrecognizedPropertyException((UnrecognizedPropertyException) rootCause,
-                                                        headers, status, request);
-        }
-
-        else if (rootCause instanceof JsonParseException) {
+                    headers, status, request);
+        } else if (rootCause instanceof JsonParseException) {
             return handleJsonParseException((JsonParseException) rootCause, headers, status, request);
         }
 
@@ -109,11 +105,11 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                             HttpStatus status,
                                                             WebRequest request) {
 
-        ProblemType type   = ProblemType.CARACTER_INVALIDO;
-        String detail      = "Verifique o caracter inválido no corpo de requisição.";
+        ProblemType type = ProblemType.CARACTER_INVALIDO;
+        String detail = "Verifique o caracter inválido no corpo de requisição.";
         OffsetDateTime time = OffsetDateTime.now();
 
-        Problem problem  = createProblemBuilder(status, type, detail, time).build();
+        Problem problem = createProblemBuilder(status, type, detail, time).build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -124,8 +120,8 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handlePautaInvalidaException(PautaInvalidaException ex,
                                                           WebRequest request) {
 
-        HttpStatus status  = HttpStatus.BAD_REQUEST;
-        ProblemType type   = ProblemType.PAUTA_INVALIDA;
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemType type = ProblemType.PAUTA_INVALIDA;
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
@@ -138,7 +134,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                      HttpHeaders headers,
                                                                      HttpStatus status,
                                                                      WebRequest request) {
-        ProblemType type   = ProblemType.FORMATO_NAO_SUPORTADO;
+        ProblemType type = ProblemType.FORMATO_NAO_SUPORTADO;
         OffsetDateTime time = OffsetDateTime.now();
         String detail = "Requisição recusada porque o corpo de requisição está em um formato não suportado.";
 
@@ -151,10 +147,10 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
             VotoInvalidoException.class
     })
     public ResponseEntity<?> handleVotoInvalidoException(VotoInvalidoException ex,
-                                                          WebRequest request) {
+                                                         WebRequest request) {
 
-        HttpStatus status  = HttpStatus.BAD_REQUEST;
-        ProblemType type   = ProblemType.VOTO_INVALIDO;
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemType type = ProblemType.VOTO_INVALIDO;
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
@@ -166,10 +162,10 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
             PautaEmVotacaoException.class
     })
     public ResponseEntity<?> handlePautaEmVotacaoException(PautaEmVotacaoException ex,
-                                                         WebRequest request) {
+                                                           WebRequest request) {
 
-        HttpStatus status  = HttpStatus.CONFLICT;
-        ProblemType type   = ProblemType.ABERTURA_INVALIDA;
+        HttpStatus status = HttpStatus.CONFLICT;
+        ProblemType type = ProblemType.ABERTURA_INVALIDA;
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, ex.getMessage(), time).build();
@@ -183,38 +179,38 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                        HttpStatus status,
                                                                        WebRequest request) {
 
-        OffsetDateTime time          = OffsetDateTime.now();
-        String propriedadeInvalida  = ex.getPropertyName();
+        OffsetDateTime time = OffsetDateTime.now();
+        String propriedadeInvalida = ex.getPropertyName();
 
         String detail = String.format("A propriedade '%s' fornecida no corpo de requisição não existe.", propriedadeInvalida);
 
-         Problem problem = createProblemBuilder(status, ProblemType.PROPRIEDADE_NAO_RECONHECIDA, detail, time)
-                                                .build();
+        Problem problem = createProblemBuilder(status, ProblemType.PROPRIEDADE_NAO_RECONHECIDA, detail, time)
+                .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
 
     public ResponseEntity<Object> handleInvalidFormatException(InvalidFormatException ex,
-                                                          HttpHeaders headers,
-                                                          HttpStatus status,
-                                                          WebRequest request) {
+                                                               HttpHeaders headers,
+                                                               HttpStatus status,
+                                                               WebRequest request) {
 
         String propriedade = ex.getPath().stream()
                 .map(e -> e.getFieldName())
                 .collect(Collectors.joining("."));
 
-        Object valor        = ex.getValue();
+        Object valor = ex.getValue();
         String tipoInvalido = ex.getValue().getClass().getSimpleName();
-        String tipoValido   = ex.getTargetType().getSimpleName();
-        OffsetDateTime time  = OffsetDateTime.now();
+        String tipoValido = ex.getTargetType().getSimpleName();
+        OffsetDateTime time = OffsetDateTime.now();
 
         String detail = String.format("Você digitou o valor: '%s', que é de um tipo inválido" +
                         " '%s', para a propriedade '%s', ajuste o valor da propriedade para o tipo '%s'.",
                 valor, tipoInvalido, propriedade, tipoValido);
 
         Problem problem = createProblemBuilder(status, ProblemType.MENSAGEM_INCOMPREENSIVEL, detail, time)
-                            .userMessage(MSG_ERRO_USUARIO)
-                            .build();
+                .userMessage(MSG_ERRO_USUARIO)
+                .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -225,9 +221,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     })
     public ResponseEntity<?> handleMessage(EmptyListException ex, WebRequest request) {
 
-        HttpStatus status  = HttpStatus.NOT_FOUND;
-        ProblemType type   = ProblemType.LISTA_VAZIA;
-        String detail      = ex.getMessage();
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemType type = ProblemType.LISTA_VAZIA;
+        String detail = ex.getMessage();
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
@@ -242,9 +238,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<?> handleEntidadeNaoEncontrada(EntidadeNaoEncontradaException ex,
                                                          WebRequest request) {
 
-        HttpStatus status  = HttpStatus.NOT_FOUND;
-        ProblemType type   = ProblemType.ENTIDADE_NAO_ENCONTRADA;
-        String detail      = ex.getMessage();
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ProblemType type = ProblemType.ENTIDADE_NAO_ENCONTRADA;
+        String detail = ex.getMessage();
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
@@ -257,10 +253,10 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
             AccessDeniedException.class
     })
     public ResponseEntity<Object> handlingAcessDenied(AccessDeniedException ex,
-                                                 WebRequest request) {
+                                                      WebRequest request) {
 
-        HttpStatus status  = HttpStatus.FORBIDDEN;
-        String detail      = "Você não tem permissão de acesso nessa funcionalidade da aplicação.";
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        String detail = "Você não tem permissão de acesso nessa funcionalidade da aplicação.";
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, ProblemType.ACESSO_NEGADO, detail, time).build();
@@ -276,7 +272,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
         if (ex instanceof MethodArgumentTypeMismatchException) {
             return handleMethodArgumentTypeMismatchException((MethodArgumentTypeMismatchException) ex,
-                                                                status, headers, request);
+                    status, headers, request);
         }
 
         return super.handleTypeMismatch(ex, headers, status, request);
@@ -284,25 +280,25 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
     //Tratamento de erro para tipos de parametros erraos na URI como um get http://localhost:8081/api/v1/associados/h
     private ResponseEntity<Object> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex,
-                                                                 HttpStatus status,
-                                                                 HttpHeaders headers,
-                                                                 WebRequest request) {
+                                                                             HttpStatus status,
+                                                                             HttpHeaders headers,
+                                                                             WebRequest request) {
 
-        ProblemType type              = ProblemType.PARAMETRO_INVALIDO;
-        String parametroInvalido      = ex.getValue().toString();
-        String tipoParametroInvalido  = ex.getValue().getClass().getSimpleName();
-        String parametroCorreto       = ex.getName();
-        String tipoParametroCorreto   = ex.getRequiredType().getSimpleName();
+        ProblemType type = ProblemType.PARAMETRO_INVALIDO;
+        String parametroInvalido = ex.getValue().toString();
+        String tipoParametroInvalido = ex.getValue().getClass().getSimpleName();
+        String parametroCorreto = ex.getName();
+        String tipoParametroCorreto = ex.getRequiredType().getSimpleName();
 
-        String   detail  = String.format("O parâmetro de URL '%s' recebeu o valor '%s' que é de um tipo '%s' inválido." +
-                                            " Corrija colocando um valor compatível com o tipo '%s'.",
+        String detail = String.format("O parâmetro de URL '%s' recebeu o valor '%s' que é de um tipo '%s' inválido." +
+                        " Corrija colocando um valor compatível com o tipo '%s'.",
                 parametroCorreto, parametroInvalido, tipoParametroInvalido, tipoParametroCorreto);
 
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time)
-                                            .userMessage(MSG_ERRO_USUARIO)
-                                            .build();
+                .userMessage(MSG_ERRO_USUARIO)
+                .build();
 
         return handleExceptionInternal(ex, problem, headers, status, request);
     }
@@ -314,8 +310,8 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                                       HttpStatus status,
                                                                       WebRequest request) {
 
-        ProblemType type   = ProblemType.METODO_NAO_SUPORTADO;
-        String detail      = "Você está tentando acessar um método que não está desenvolvido em nosso sistema.";
+        ProblemType type = ProblemType.METODO_NAO_SUPORTADO;
+        String detail = "Você está tentando acessar um método que não está desenvolvido em nosso sistema.";
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
@@ -327,12 +323,12 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
             Exception.class
     })
     public ResponseEntity<?> handleUncaughtExceptions(Exception ex,
-                                                     WebRequest request) {
+                                                      WebRequest request) {
 
-        HttpStatus status  = HttpStatus.INTERNAL_SERVER_ERROR;
-        ProblemType type   = ProblemType.ERRO_DE_SISTEMA;
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ProblemType type = ProblemType.ERRO_DE_SISTEMA;
         OffsetDateTime time = OffsetDateTime.now();
-        String detail      = MSG_ERRO_USUARIO;
+        String detail = MSG_ERRO_USUARIO;
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();
 
@@ -365,16 +361,16 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         List<FieldError> erros = ex.getBindingResult().getFieldErrors();
         List<Field> fields = erros.stream()
                 .map(fieldError -> {
-                            String message = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
+                    String message = messageSource.getMessage(fieldError, LocaleContextHolder.getLocale());
 
-                            return Field.builder()
-                                    .property(fieldError.getField())
-                                    .message(message).build();
-                        })
+                    return Field.builder()
+                            .property(fieldError.getField())
+                            .message(message).build();
+                })
                 .collect(Collectors.toList());
 
-        ProblemType type   = ProblemType.DADOS_INVALIDOS;
-        String detail      = "Um ou mais campos estão com dados inválidos. Tente novamente.";
+        ProblemType type = ProblemType.DADOS_INVALIDOS;
+        String detail = "Um ou mais campos estão com dados inválidos. Tente novamente.";
         OffsetDateTime time = OffsetDateTime.now();
 
 
@@ -390,9 +386,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     })
     public ResponseEntity<?> handleCPFInvalidoException(CPFInvalidoException ex,
                                                         WebRequest request) {
-        HttpStatus status  = HttpStatus.BAD_REQUEST;
-        ProblemType type   = ProblemType.CPF_INVALIDO;
-        String detail      = ex.getMessage();
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        ProblemType type = ProblemType.CPF_INVALIDO;
+        String detail = ex.getMessage();
         OffsetDateTime time = OffsetDateTime.now();
 
         Problem problem = createProblemBuilder(status, type, detail, time).build();

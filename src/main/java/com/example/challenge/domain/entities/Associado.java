@@ -4,8 +4,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.validator.constraints.br.CPF;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -26,14 +29,14 @@ public class Associado implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ApiModelProperty(example = "João da Silva", required = true)
+    @Column(nullable = false)
     private String nome;
 
-    @ApiModelProperty(example = "joao@gmail.com", required = true)
-    private String email;
-
-    @ApiModelProperty(example = "087.765.580-27", required = true)
+    @Column(nullable = false)
     private String cpf;
+
+    @Column(nullable = false)
+    private String email;
 
     @OneToMany(mappedBy = "associado", cascade = CascadeType.ALL)
     private List<Voto> votos;

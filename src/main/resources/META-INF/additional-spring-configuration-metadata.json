@@ -4,5 +4,6 @@
       "name": "include-binding-errors",
       "type": "java.lang.String",
       "description": "Description for include-binding-errors."
-  }
-] }
+    }
+  ]
+}

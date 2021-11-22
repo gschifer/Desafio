@@ -13,7 +13,6 @@ import javax.validation.constraints.NotBlank;
 public class VotoRequest {
 
     @NotBlank
-    @Column(nullable = false)
     private String descricaoVoto;
 }
 
